@@ -40,7 +40,7 @@ fly_dat <- list(fly_18,fly_24,fly_23,fly_29)
 exp_tmp <- c(18.5,24,23.5,29.5)
 
 # set up temperature input vector for generating continental map
-con_temp <- 32
+con_temp <- 1:40
 #-------------------------------------
 # FUNCTION est_trans
 # get model coefficients from a quadratic
