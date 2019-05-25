@@ -6,7 +6,7 @@
 # for graphics
 
 #-------------------------------------
-source("Scripts/MedflyMatrix.R")
+source("Scripts/MatrixFunctions.R")
 # set up experimental temperature vector
 exp_tmp <- c(18.5,24,23.5,29.5)
 
@@ -17,18 +17,6 @@ con_temp <- 1:40
 emp_lam <- c(0.051,0.120,0.137,0.092)
 emp_lam <- exp(emp_lam)
 
-
-#-------------------------------------
-#FUNCTION lam2_gen
-# generates lambda values 
-# input: x=vector of experimental temperatures
-#        y=vector of measured lambdas
-#        z=vector of temperatures for prediction
-lam2_gen <- function(x,y,z){
-. <- est_trans(x,y)
-. <- pred_trans(z,.)
-.[.<0] <- 0  # rescale any negative values
-. <- as.list(.)
-return(.)
-}
-lam2_gen(x=exp_tmp,y=emp_lam,z=con_temp)
+# run model
+z2 <-lam2_gen(x=exp_tmp,y=emp_lam,z=con_temp)
+str(z2)

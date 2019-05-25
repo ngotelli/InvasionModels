@@ -5,3 +5,6 @@
 *.Rproj
 *.pdf
 *.html
+*.bil
+*.hdr
+*_bil.zip
