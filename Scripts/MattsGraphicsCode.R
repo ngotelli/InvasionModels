@@ -66,11 +66,11 @@ lambda_rasts <- mclapply(1:12, function(x, tempRasts){
   rast <- tempRasts[[x]]
   keep <- !is.na(rast[]) # index NAs
 #-------------------------------------
-   lamb <- lam_gen(rast[keep]) # calc lamba for each temp
+   # lamb <- lam_gen(rast[keep]) # calc lamba for each temp
 #-------------------------------------
-  # lamb <- lam2_gen(x=exp_tmp,
-  # 								 y=emp_lam,
-  # 								 z=rast[keep]) # calc lamba for each temp
+  lamb <- lam2_gen(x=exp_tmp,
+  								 y=emp_lam,
+  								 z=rast[keep]) # calc lamba for each temp
 #-------------------------------------
   rast[which(keep)] <- unlist(lamb) # assign lamba back to raster
   return(rast)}, tempRasts=tmean, mc.cores=2)
