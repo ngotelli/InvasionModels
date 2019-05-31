@@ -1,0 +1,21 @@
+---
+title: "Demography Model Updates"
+author: "Nick Gotelli"
+date: ""
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+This markdown file gives updates of progress on the demographic modeling. The most recent postings are at the top.
+
+# 31 May 2019
+
+![Caption text can go here.](../Graphics/Figure1.jpeg)
+
+
+![Caption text here. ](../Graphics/Figure2.jpeg)
+
+![Caption text.](../Graphics/Figure3.jpeg)
