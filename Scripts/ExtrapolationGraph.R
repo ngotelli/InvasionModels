@@ -45,6 +45,7 @@ model <- rep(c("Vital Rates Prediction","Lambda Prediction"),each=length(con_tem
 df <- data.frame(lambda=lambda.vec,temperature=temperature, model=model)
 df2 <- data.frame(lambda=emp_lam,temperature=exp_tmp)
 # create extrapolation plot
+xlab = expression("Temperature " ( degree*C))
 plot_1 <- ggplot(data=df, aes(x=temperature,
 															y=lambda,
 															shape=model)) +
@@ -52,12 +53,13 @@ plot_1 <- ggplot(data=df, aes(x=temperature,
 	geom_line() +
 	geom_hline(yintercept=1.0,color=I("red")) +
 	 geom_point(data=df2,color="blue",shape=21,size=4) +
+	 labs(x=xlab) +
 	theme_bw()
 
 plot(plot_1)
-ggsave(filename="Graphics/Figure1.eps",
+ggsave(filename="Graphics/Figure1.jpeg",
 			 plot=plot_1,
-			 device="eps",
+			 device="jpg",
 			 width=7,
 			 height=5,
 			 units="in")
