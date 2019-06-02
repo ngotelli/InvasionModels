@@ -1,8 +1,11 @@
 ---
 title: "Demography Model Updates"
 author: "Nick Gotelli"
-date: ""
-output: pdf_document
+date: ''
+output:
+  html_document:
+    theme: cerulean
+fontsize: 12pt
 ---
 
 ```{r setup, include=FALSE}
@@ -10,12 +13,11 @@ knitr::opts_chunk$set(echo = TRUE)
 library(knitr)
 library(kableExtra)
 library(xtable)
-options(knitr.table.format = "latex")
+options(knitr.table.format = "html")
 ```
-
 This markdown file gives updates of progress on the demographic modeling. The most recent postings are at the top.
 
-# 1 June 2019
+# `1 June 2019`
 
 ## Medfly life table construction
 
@@ -23,14 +25,14 @@ We began with the life history data  in Tables 3 and 4 of:
 
 >Vargas, R.I., W.A. Walsh, D. Kanehisa,  J.D. Stark, and T. Nishida. 2000. Annals of the Entomologial Society of America 93: 75-81.
 
-These authors raised flies at 4 different temperatures and constructed age-structured life tables with $l_x$ and $m_x$ data for deaths and births. Unfortunately, the full life tables were not presented, so we were forced to work with summary statistics, such as median $l_x$ values. We were able to assemble them into a 4-stage life history model. For example, here is our derived stage-transition matrix for flies raised at 
+These authors raised flies at 4 different temperatures and constructed age-structured life tables with $l_x$ and $m_x$ data for deaths and births. Unfortunately, the full life tables were not presented, so I was forced to work with summary statistics, such as median $l_x$ values. I was able to assemble them into a 4-stage life history model. For example, here is the derived stage-transition matrix for flies raised at 
 $18.5^\circ$ C:
 
 ```{r, echo=FALSE}
 life_table <- matrix(c(0,0.970,0,0,0,0,0.887,0,0,0,0,1.000,1.350,0,0,0),nrow=4)
 row.names(life_table) <- c("Egg","Larva","Pupa","Adult")
 colnames(life_table) <- c("Egg","Larva","Pupa","Adult")
-kable(life_table, "latex",  booktabs = T,digits=3) %>% kable_styling(latex_options = c("striped", "hold_position"))
+kable(life_table, "html",  booktabs = T,digits=3) %>% kable_styling(latex_options = c("striped", "hold_position"))
 ```
 
 The problem with this life table is that we have forced the medfly life history into an age-structured model in which each of the 4 life history stages lasts exactly one day. At the end of the day, an individual either dies or advances to the next stage.
@@ -43,18 +45,34 @@ Because of the obvious distortions to the life history in the `vital rates model
 
 ## Comparison of predictions from `vital rates model` and `lambda model`
 
-Here is a graph of the predictions from each of the two models as a function of temperature. The graph looks a little odd because I clipped values less than 1.0 to 0.0 so that Matt's spatial maps would be easier to read. I also superimposed the 4 $\lambda$ values that were used to fit the `lambda model`.
+Here is a graph of the predictions from each of the two models as a function of temperature. The graph looks a little odd because I clipped values less than 1.0 to 0.0 so that Matt's spatial maps would be easier to read. I also superimposed the 4 empirical $\lambda$ values (blue circles) from Vargas et al. (2000) that were used to fit the `lambda model`.
 
 ![Predictions of vital rates and lambda models](../Graphics/Figure1.jpeg)
 
 There are some differences between these models. The `vital rates model` predicts much faster population growth rates at most temperatures, but it also generates a range of viable temperatures ($\lambda > 1.0$) that is $3^\circ$ narrower than the range predicted by the `lambda model`.
 
-In spite of this difference, the predictions from the monthly and total maps (see below) did not appear that different for the two models. But for our paper, I think we should stick with the `lambda model`. It is the very simplest demographic prediction model that is possible: no life history details are needed, just values of $\lambda$ measured at different temperatures (or other environmental variables).
+In spite of this difference, the predictions depicted in the monthly and yearly maps (see below) did not appear qualitatively different for the two models. But for our paper, I think we should stick with the `lambda model`. It is the very simplest demographic prediction model that is possible: no life history details are needed, just values of $\lambda$ measured at different temperatures (or other environmental variables).
 
 That should make a nice lead-in to the cheatgrass analyses, where I will again set up the `vital rates model` and the `lambda model`, this time with snowpack as the driver variable.
 
+## SDM monthly projections with demographic model
+
+Now that we have functions for predicting $\lambda$ as a function of temperature, we can create a simple species distribution model for medfly in North America. Using the bioclim variable of average monthly temperature, Matt first coded up a mapping of population growth rate in each month of the year. In this map, colored pixels have $\lambda > 1$, indicating sites where medfly could achieve population growth in a particular month. Sites in which $\lambda < 1$ have no color because these are sites where population growth rates are below replacement. 
+
+Here is Matt's map:
+
+![Monthly population growth rates](../Graphics/Figure2.jpeg)
+
+From this map, you can see that the model predicts that medfly could thrive throughout most of the continent in the warm summer months, but will not persist in the winter months. 
+
+Following a suggestion from Michael, we used the geometric mean of the monthly lambda values to determine those places in North America where medfly could maintain positive population growth through the course of a entire year:
 
 
-![Caption text here. ](../Graphics/Figure2.jpeg)
+![Integrated annual population growth rates](../Graphics/Figure3.jpeg)
 
-![Caption text.](../Graphics/Figure3.jpeg)
+Sustained population growth is only possible in south Florida; similar results were obtained using the `vital rates` model. From conversations with Michael and Leigh, this seems to match pretty well what has happened with medfly, which is established in south Florda, with populations in southern California that are in watered agricultural sites. Not bad for a demographic SDM that is based on only 4 data points from a lab study!
+
+If there are GBIF records available for medfly, it would be interesting to compare these results to a cookie-cutter MaxEnt model that uses the default settings (Matt, would this be easy to do?).
+
+The next step will be to start setting up the cheatgrass models.
+
