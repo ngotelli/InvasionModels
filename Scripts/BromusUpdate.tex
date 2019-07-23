@@ -1,0 +1,629 @@
+\documentclass[]{article}
+\usepackage{lmodern}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\usepackage{fixltx2e} % provides \textsubscript
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+\else % if luatex or xelatex
+  \ifxetex
+    \usepackage{mathspec}
+  \else
+    \usepackage{fontspec}
+  \fi
+  \defaultfontfeatures{Ligatures=TeX,Scale=MatchLowercase}
+\fi
+% use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+% use microtype if available
+\IfFileExists{microtype.sty}{%
+\usepackage{microtype}
+\UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+\hypersetup{unicode=true,
+            pdftitle={Bromus Initial Analysis},
+            pdfauthor={Nick Gotelli},
+            pdfborder={0 0 0},
+            breaklinks=true}
+\urlstyle{same}  % don't use monospace font for urls
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.77,0.63,0.00}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{graphicx,grffile}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+\IfFileExists{parskip.sty}{%
+\usepackage{parskip}
+}{% else
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 2pt minus 1pt}
+}
+\setlength{\emergencystretch}{3em}  % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{0}
+% Redefines (sub)paragraphs to behave more like sections
+\ifx\paragraph\undefined\else
+\let\oldparagraph\paragraph
+\renewcommand{\paragraph}[1]{\oldparagraph{#1}\mbox{}}
+\fi
+\ifx\subparagraph\undefined\else
+\let\oldsubparagraph\subparagraph
+\renewcommand{\subparagraph}[1]{\oldsubparagraph{#1}\mbox{}}
+\fi
+
+%%% Use protect on footnotes to avoid problems with footnotes in titles
+\let\rmarkdownfootnote\footnote%
+\def\footnote{\protect\rmarkdownfootnote}
+
+%%% Change title format to be more compact
+\usepackage{titling}
+
+% Create subtitle command for use in maketitle
+\providecommand{\subtitle}[1]{
+  \posttitle{
+    \begin{center}\large#1\end{center}
+    }
+}
+
+\setlength{\droptitle}{-2em}
+
+  \title{\emph{Bromus} Initial Analysis}
+    \pretitle{\vspace{\droptitle}\centering\huge}
+  \posttitle{\par}
+    \author{Nick Gotelli}
+    \preauthor{\centering\large\emph}
+  \postauthor{\par}
+      \predate{\centering\large\emph}
+  \postdate{\par}
+    \date{7/19/2019}
+
+
+\begin{document}
+\maketitle
+
+\hypertarget{data-sources-and-cleaning}{%
+\subsection{Data sources and cleaning}\label{data-sources-and-cleaning}}
+
+These data were provided by Alden Griffith and Michael Loic. After
+talking with Alden, we decided to use lambda values that had been
+estimated from changes in the number of individuals in marked plots,
+rather than analysis of stage transition matrices. For a number of
+control and snow-manipulated plots, we have the estimated lambda
+\((N_{t + 1}/N_{t})\) based on annual counts of cheatgrass for 7
+consecutive years.
+
+I cleaned the initial data file
+(\texttt{Bromus\ Lambda\ and\ Climate\ Data.csv}), moving a notes column
+to initial comment lines, and adding 4 missing values as \texttt{NA}.
+The modified data are in \texttt{CleanBromusData.csv}.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# Preliminaries -----------------------------------------------------------}
+\KeywordTok{library}\NormalTok{(tidyverse)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## -- Attaching packages -------------------- tidyverse 1.2.1 --
+\end{verbatim}
+
+\begin{verbatim}
+## v ggplot2 3.2.0     v purrr   0.3.2
+## v tibble  2.1.3     v dplyr   0.8.3
+## v tidyr   0.8.3     v stringr 1.4.0
+## v readr   1.3.1     v forcats 0.4.0
+\end{verbatim}
+
+\begin{verbatim}
+## -- Conflicts ----------------------- tidyverse_conflicts() --
+## x dplyr::filter() masks stats::filter()
+## x dplyr::lag()    masks stats::lag()
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# Get input data ----------------------------------------------------------}
+\NormalTok{df <-}\StringTok{ }\KeywordTok{read.csv}\NormalTok{(}\DataTypeTok{file=}\StringTok{"../CleanData/CleanBromusData.csv"}\NormalTok{,}\DataTypeTok{comment.char=}\StringTok{"#"}\NormalTok{)}
+\NormalTok{df <-}\StringTok{ }\NormalTok{df[,}\OperatorTok{-}\KeywordTok{ncol}\NormalTok{(df)]                 }\CommentTok{# remove empty final column}
+\NormalTok{df_clean <-}\StringTok{ }\NormalTok{df[}\KeywordTok{complete.cases}\NormalTok{(df),]  }\CommentTok{# remove 4 missing lambda}
+
+\NormalTok{df_preds <-}\StringTok{ }\NormalTok{df_clean[,}\DecValTok{8}\OperatorTok{:}\DecValTok{18}\NormalTok{]           }\CommentTok{# create dataframe of predictor variables}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{initial-regression-models}{%
+\subsection{Initial regression models}\label{initial-regression-models}}
+
+With the data frame set up, the first analysis was to use each of the
+predictor variables (snow, degree-days, precipitation, etc.), with
+\(\lambda\) as the response variable. For each variable, I built a
+linear and a quadratic regression model.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# Function Model Fit ------------------------------------------------------}
+\CommentTok{# inputs: response variable, predictor variable}
+\CommentTok{# outputs: adjusted r2 for linear and quadratic regression models}
+
+\NormalTok{quad_fit <-}\StringTok{ }\ControlFlowTok{function}\NormalTok{(}\DataTypeTok{x=}\NormalTok{df_clean}\OperatorTok{$}\NormalTok{Snow.Cover, }\DataTypeTok{y=}\NormalTok{df_clean}\OperatorTok{$}\NormalTok{Lambda)\{}
+\NormalTok{  M1 <-}\StringTok{ }\KeywordTok{summary}\NormalTok{(}\KeywordTok{lm}\NormalTok{(y}\OperatorTok{~}\NormalTok{x))}
+\NormalTok{  M2 <-}\StringTok{ }\KeywordTok{summary}\NormalTok{(}\KeywordTok{lm}\NormalTok{(y}\OperatorTok{~}\KeywordTok{poly}\NormalTok{(x,}\DecValTok{2}\NormalTok{)))}
+  \KeywordTok{return}\NormalTok{(}\KeywordTok{c}\NormalTok{(M1}\OperatorTok{$}\NormalTok{adj.r.squared,M2}\OperatorTok{$}\NormalTok{adj.r.squared))}
+\NormalTok{\}}
+\CommentTok{# -------------------------------------------------------------------------}
+\CommentTok{# map all predictor variables to quad_fit}
+\NormalTok{summary_df <-}\StringTok{ }\KeywordTok{map}\NormalTok{(df_preds,quad_fit,}\DataTypeTok{y=}\NormalTok{df_clean}\OperatorTok{$}\NormalTok{Lambda)}
+
+\CommentTok{# put into a summary data frame and add column labels}
+\NormalTok{summary_df <-}\StringTok{ }\KeywordTok{t}\NormalTok{(}\KeywordTok{bind_rows}\NormalTok{(summary_df))}
+\KeywordTok{colnames}\NormalTok{(summary_df) <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{"Linear"}\NormalTok{,}\StringTok{"Quadratic"}\NormalTok{)}
+\CommentTok{# -------------------------------------------------------------------------}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{first-screening-of-predictor-variables}{%
+\subsection{First screening of predictor
+variables}\label{first-screening-of-predictor-variables}}
+
+In this table, each row is a different model with a single predictor
+variable, and the data frame shows the adjusted r\textsuperscript{2} for
+each model. The two columns are for a linear model \((y \sim x)\) and a
+quadratic model \((y \sim x + x^2)\).
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{print}\NormalTok{(summary_df)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##                            Linear Quadratic
+## Starting.Density          0.37338   0.42397
+## Grow.Season.Precip.Snow   0.02884   0.04209
+## Grow.Season.Precip.Rain   0.05091   0.39264
+## Grow.Season.DD.all.days   0.20921   0.34622
+## Grow.Season.Precip.Total  0.09829   0.47520
+## Snow.Cover                0.22703   0.45274
+## Winter.Precip.Snow        0.05769   0.15705
+## Winter.Precip.Rain        0.42714   0.42819
+## Winter.DD.no.snowpack     0.00414  -0.00406
+## Winter.DD.all.days       -0.00690   0.14229
+## Winter.Precip.Total       0.14253   0.28153
+\end{verbatim}
+
+A couple things jump out from these univariate regressions. First, the
+quadratic model almost always fits better than the corresponding linear
+model (even after imposing a penalty for the additional parameter), so
+we have good theoretical grounds and empirical support for going with
+the quadratic models.
+
+I wanted to have predictors related to snow, temperature, and
+precipitation, as those seem like the best suspects for what is driving
+distribution. Based on the adjusted r\textsuperscript{2}, the best 3
+predictors were \texttt{Snow.Cover}, \texttt{Grow.Season.Precip.Total},
+and \texttt{Grow.Season.DD.all.days}. There was also a significant
+effect of \texttt{Starting.Density}, which I will discuss near the end.
+
+\hypertarget{initial-multiple-regression-model}{%
+\subsection{Initial multiple regression
+model}\label{initial-multiple-regression-model}}
+
+Now taking those 3 best predictors based on snow, precip, and
+temperature, here is the full model:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# best variables are:}
+\CommentTok{# Grow.Season.DD.all.days (4)}
+\CommentTok{# Grow.Season.Precip.Total (5)}
+\CommentTok{# Snow.Cover (6)}
+\NormalTok{best_preds <-}\StringTok{ }\NormalTok{df_preds[,}\DecValTok{4}\OperatorTok{:}\DecValTok{6}\NormalTok{]}
+  
+\NormalTok{y <-}\StringTok{ }\NormalTok{df_clean}\OperatorTok{$}\NormalTok{Lambda}
+\NormalTok{x_}\DecValTok{1}\NormalTok{ <-}\StringTok{ }\NormalTok{best_preds[,}\DecValTok{1}\NormalTok{]}
+\NormalTok{x_}\DecValTok{2}\NormalTok{ <-}\StringTok{ }\NormalTok{best_preds[,}\DecValTok{2}\NormalTok{]}
+\NormalTok{x_}\DecValTok{3}\NormalTok{ <-}\StringTok{ }\NormalTok{best_preds[,}\DecValTok{3}\NormalTok{]}
+
+\NormalTok{model_}\DecValTok{1}\NormalTok{ <-}\StringTok{ }\KeywordTok{summary}\NormalTok{(}\KeywordTok{lm}\NormalTok{(y}\OperatorTok{~}\KeywordTok{poly}\NormalTok{(x_}\DecValTok{1}\NormalTok{,}\DecValTok{2}\NormalTok{) }\OperatorTok{+}\StringTok{ }\KeywordTok{poly}\NormalTok{(x_}\DecValTok{2}\NormalTok{,}\DecValTok{2}\NormalTok{) }\OperatorTok{+}\StringTok{ }\KeywordTok{poly}\NormalTok{(x_}\DecValTok{3}\NormalTok{,}\DecValTok{2}\NormalTok{)))}
+\KeywordTok{print}\NormalTok{(model_}\DecValTok{1}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+## Call:
+## lm(formula = y ~ poly(x_1, 2) + poly(x_2, 2) + poly(x_3, 2))
+## 
+## Residuals:
+##    Min     1Q Median     3Q    Max 
+## -2.114 -0.454 -0.113  0.246  3.516 
+## 
+## Coefficients:
+##               Estimate Std. Error t value Pr(>|t|)
+## (Intercept)     1.6351     0.0789   20.72  < 2e-16
+## poly(x_1, 2)1   3.1085     1.2259    2.54  0.01254
+## poly(x_1, 2)2   4.4275     1.2023    3.68  0.00035
+## poly(x_2, 2)1   0.5263     2.0579    0.26  0.79858
+## poly(x_2, 2)2   2.0431     1.6022    1.28  0.20478
+## poly(x_3, 2)1   5.5628     1.2775    4.35  2.9e-05
+## poly(x_3, 2)2  -5.1611     1.8141   -2.84  0.00524
+## 
+## Residual standard error: 0.879 on 117 degrees of freedom
+## Multiple R-squared:  0.612,  Adjusted R-squared:  0.592 
+## F-statistic: 30.8 on 6 and 117 DF,  p-value: <2e-16
+\end{verbatim}
+
+\hypertarget{variable-model-with-an-interaction-term}{%
+\subsection{2-variable model with an interaction
+term}\label{variable-model-with-an-interaction-term}}
+
+Although the precipitation variable was initially a strong predictor,
+its effect is non-significant with both snow cover and degree days in
+the model, so I dropped it at this point. The next step was to try a
+2-variable model but include an interaction term between snow cover and
+degree days:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# Try adding an interaction term -----------------------------------------}
+
+\NormalTok{model_}\DecValTok{3}\NormalTok{ <-}\StringTok{ }\KeywordTok{summary}\NormalTok{(}\KeywordTok{lm}\NormalTok{(y}\OperatorTok{~}\KeywordTok{poly}\NormalTok{(x_}\DecValTok{1}\NormalTok{,}\DecValTok{2}\NormalTok{) }\OperatorTok{+}\StringTok{ }\KeywordTok{poly}\NormalTok{(x_}\DecValTok{3}\NormalTok{,}\DecValTok{2}\NormalTok{) }\OperatorTok{+}\StringTok{ }\NormalTok{x_}\DecValTok{1}\OperatorTok{*}\NormalTok{x_}\DecValTok{3}\NormalTok{))}
+\KeywordTok{print}\NormalTok{(model_}\DecValTok{3}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+## Call:
+## lm(formula = y ~ poly(x_1, 2) + poly(x_3, 2) + x_1 * x_3)
+## 
+## Residuals:
+##    Min     1Q Median     3Q    Max 
+## -2.113 -0.392 -0.039  0.297  3.602 
+## 
+## Coefficients: (2 not defined because of singularities)
+##               Estimate Std. Error t value Pr(>|t|)
+## (Intercept)    5.19694    3.99197    1.30  0.19550
+## poly(x_1, 2)1  8.90080    5.41854    1.64  0.10312
+## poly(x_1, 2)2  4.79181    0.97537    4.91  2.9e-06
+## poly(x_3, 2)1 20.80155   15.83877    1.31  0.19162
+## poly(x_3, 2)2 -4.23724    1.14679   -3.69  0.00033
+## x_1                 NA         NA      NA       NA
+## x_3                 NA         NA      NA       NA
+## x_1:x_3       -0.00691    0.00775   -0.89  0.37398
+## 
+## Residual standard error: 0.879 on 118 degrees of freedom
+## Multiple R-squared:  0.609,  Adjusted R-squared:  0.592 
+## F-statistic: 36.8 on 5 and 118 DF,  p-value: <2e-16
+\end{verbatim}
+
+\hypertarget{final-2-variable-prediction-model}{%
+\subsection{Final 2-variable prediction
+model}\label{final-2-variable-prediction-model}}
+
+However, the interaction term does not add anything. So, we are left
+with just a two-variable quadratic model for predicting \(\lambda\):
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{model_}\DecValTok{2}\NormalTok{ <-}\StringTok{ }\KeywordTok{summary}\NormalTok{(}\KeywordTok{lm}\NormalTok{(y}\OperatorTok{~}\KeywordTok{poly}\NormalTok{(x_}\DecValTok{1}\NormalTok{,}\DecValTok{2}\NormalTok{) }\OperatorTok{+}\StringTok{ }\KeywordTok{poly}\NormalTok{(x_}\DecValTok{3}\NormalTok{,}\DecValTok{2}\NormalTok{)))}
+\KeywordTok{print}\NormalTok{(model_}\DecValTok{2}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+## Call:
+## lm(formula = y ~ poly(x_1, 2) + poly(x_3, 2))
+## 
+## Residuals:
+##    Min     1Q Median     3Q    Max 
+## -2.095 -0.428 -0.078  0.290  3.541 
+## 
+## Coefficients:
+##               Estimate Std. Error t value Pr(>|t|)
+## (Intercept)     1.6351     0.0788   20.74  < 2e-16
+## poly(x_1, 2)1   4.1393     0.9448    4.38  2.6e-05
+## poly(x_1, 2)2   4.8334     0.9734    4.97  2.3e-06
+## poly(x_3, 2)1   6.6919     0.9478    7.06  1.2e-10
+## poly(x_3, 2)2  -4.7814     0.9704   -4.93  2.7e-06
+## 
+## Residual standard error: 0.878 on 119 degrees of freedom
+## Multiple R-squared:  0.606,  Adjusted R-squared:  0.593 
+## F-statistic: 45.8 on 4 and 119 DF,  p-value: <2e-16
+\end{verbatim}
+
+In this model, all of the coefficients are significantly different from
+zero, and the model explains over 50\% of the variance in \(\lambda\),
+which is decent. For now, that is the model we will start with, although
+it will be easy enough to change if there are other variables you want
+to consider.
+
+\hypertarget{functions-for-fitting-and-predicting-with-new-values}{%
+\subsection{Functions for fitting and predicting with new
+values}\label{functions-for-fitting-and-predicting-with-new-values}}
+
+The next two functions are used to fit the model to the data, and then
+to predict new values of \(\lambda\) based on new inputs of snow cover
+or degree days.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# Function Lambda Model -----------------------------------------------}
+\CommentTok{# inputs: lambda vector, and data frame of predictor variables}
+\CommentTok{# outputs: linear model for forecasting}
+
+\NormalTok{lambda_model <-}\StringTok{ }\ControlFlowTok{function}\NormalTok{(}\DataTypeTok{y=}\NormalTok{df_clean}\OperatorTok{$}\NormalTok{Lambda,}\DataTypeTok{z=}\NormalTok{best_preds)\{}
+\NormalTok{  y <-}\StringTok{ }\NormalTok{df_clean}\OperatorTok{$}\NormalTok{Lambda}
+\NormalTok{  x_}\DecValTok{1}\NormalTok{ <-}\StringTok{ }\NormalTok{z[,}\DecValTok{1}\NormalTok{] }\CommentTok{# Grow.Season.DD.all.days}
+\NormalTok{  x_}\DecValTok{2}\NormalTok{ <-}\StringTok{ }\NormalTok{z[,}\DecValTok{3}\NormalTok{]  }\CommentTok{# Snow.Cover}
+\NormalTok{  forecast_model <-}\StringTok{ }\KeywordTok{lm}\NormalTok{(y}\OperatorTok{~}\KeywordTok{poly}\NormalTok{(x_}\DecValTok{1}\NormalTok{,}\DecValTok{2}\NormalTok{) }\OperatorTok{+}\StringTok{ }\KeywordTok{poly}\NormalTok{(x_}\DecValTok{2}\NormalTok{,}\DecValTok{2}\NormalTok{))}
+\NormalTok{\}}
+
+\CommentTok{# Function Lambda predict -------------------------------------------------}
+\CommentTok{# inputs: linear model, degree days (vector), snow cover (vector)}
+\CommentTok{# outputs: predicted lambda}
+
+\NormalTok{lambda_predict <-}\StringTok{ }\ControlFlowTok{function}\NormalTok{(}\DataTypeTok{m=}\NormalTok{my_model,}\DataTypeTok{degree_days=}\KeywordTok{c}\NormalTok{(}\DecValTok{800}\NormalTok{,}\DecValTok{600}\NormalTok{),}\DataTypeTok{snow=}\KeywordTok{c}\NormalTok{(}\FloatTok{0.83}\NormalTok{,.}\DecValTok{74}\NormalTok{)) \{}
+
+\NormalTok{z <-}\StringTok{ }\KeywordTok{predict}\NormalTok{(}\DataTypeTok{object=}\NormalTok{m, }\DataTypeTok{newdata=}\KeywordTok{data.frame}\NormalTok{(}\DataTypeTok{x_1=}\NormalTok{degree_days,}\DataTypeTok{x_2=}\NormalTok{snow))}
+\NormalTok{z[z}\OperatorTok{<}\DecValTok{0}\NormalTok{] <-}\StringTok{ }\DecValTok{0}   \CommentTok{# reset to 0 any predicted negative values for lambda}
+\KeywordTok{return}\NormalTok{(z)}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{using-the-functions-for-forecasting-continental-distributions}{%
+\subsection{Using the functions for forecasting continental
+distributions}\label{using-the-functions-for-forecasting-continental-distributions}}
+
+These two functions will make it possible to generate predictions for
+any values of snow cover and degree days. For example, here the
+functions are run for two arbitrary vectors of 10 elements each snow
+cover and degree days. The output is the estimated \(\lambda\) for each
+pair of the variables:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{lambda_predict}\NormalTok{(}\DataTypeTok{m=}\KeywordTok{lambda_model}\NormalTok{(),}\DataTypeTok{degree_days=}\KeywordTok{sample}\NormalTok{(}\DecValTok{600}\OperatorTok{:}\DecValTok{800}\NormalTok{,}\DecValTok{10}\NormalTok{),}\DataTypeTok{snow=}\KeywordTok{runif}\NormalTok{(}\DecValTok{10}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##     1     2     3     4     5     6     7     8     9    10 
+## 1.252 2.233 2.048 0.000 2.294 4.602 1.599 0.000 0.000 0.594
+\end{verbatim}
+
+When we get to the next step, Matt will use this line of code to
+generate an estimated lambda for any map location for which we have the
+snow and degree days measurements.
+
+\hypertarget{sweeping-the-parameters-and-constructing-a-heat-map-for-lambda}{%
+\subsection{\texorpdfstring{Sweeping the parameters and constructing a
+heat map for
+\(\lambda\)}{Sweeping the parameters and constructing a heat map for \textbackslash{}lambda}}\label{sweeping-the-parameters-and-constructing-a-heat-map-for-lambda}}
+
+Before we build the continental map, it is instructive to sweep the
+parameters and visualize the response surface of \(\lambda\). To set
+limits on snow cover and degree days, I will consider snow cover between
+0 and 100\%, and will expand the degree day measurements by 50\% beyond
+the measured limits in Alden and Michael's experiment:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# set limits for parameter inputs}
+\NormalTok{snow_low <-}\StringTok{ }\FloatTok{0.0}
+\NormalTok{snow_high <-}\StringTok{ }\FloatTok{1.0}
+\NormalTok{dd_low <-}\StringTok{ }\FloatTok{0.5}\OperatorTok{*}\KeywordTok{min}\NormalTok{(x_}\DecValTok{1}\NormalTok{)}
+\NormalTok{dd_high <-}\StringTok{ }\FloatTok{1.5}\OperatorTok{*}\KeywordTok{max}\NormalTok{(x_}\DecValTok{1}\NormalTok{)}
+
+\CommentTok{# create parameter data frame with column for output}
+\NormalTok{param_df <-}\StringTok{ }\KeywordTok{expand.grid}\NormalTok{(}\DataTypeTok{snow_cover=}\KeywordTok{seq}\NormalTok{(}\DataTypeTok{from=}\NormalTok{snow_low, }\DataTypeTok{to=}\NormalTok{snow_high, }\DataTypeTok{length.out=}\DecValTok{20}\NormalTok{),}
+                        \DataTypeTok{degree_days=}\KeywordTok{seq}\NormalTok{(}\DataTypeTok{from=}\NormalTok{dd_low, }\DataTypeTok{to=}\NormalTok{dd_high,}\DataTypeTok{length.out=}\DecValTok{20}\NormalTok{))}
+\NormalTok{param_df}\OperatorTok{$}\NormalTok{lambda <-}\StringTok{ }\OtherTok{NA}
+
+\CommentTok{# apply function to each row}
+\ControlFlowTok{for}\NormalTok{ (i }\ControlFlowTok{in} \DecValTok{1}\OperatorTok{:}\KeywordTok{nrow}\NormalTok{(param_df))\{}
+\NormalTok{  param_df[i,}\DecValTok{3}\NormalTok{] <-}\StringTok{ }\KeywordTok{lambda_predict}\NormalTok{(}\DataTypeTok{m=}\KeywordTok{lambda_model}\NormalTok{(),}
+                                  \DataTypeTok{degree_days=}\NormalTok{param_df[i,}\DecValTok{2}\NormalTok{],}
+                                  \DataTypeTok{snow=}\NormalTok{param_df[i,}\DecValTok{1}\NormalTok{])}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{problems-with-the-model}{%
+\subsection{Problems with the model}\label{problems-with-the-model}}
+
+Scanning through the completed \texttt{param\_df} data frame reveals
+impossibly high values of lambda for most parameter combinations. The
+problem is coming from the degree days data:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{qplot}\NormalTok{(}\DataTypeTok{x=}\NormalTok{best_preds[,}\DecValTok{1}\NormalTok{],}\DataTypeTok{y=}\NormalTok{df_clean}\OperatorTok{$}\NormalTok{Lambda)                                  }
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{BromusUpdate_files/figure-latex/unnamed-chunk-10-1.pdf}
+
+Because of the cluster of small values at 800 degree days, the quadratic
+term in the regression model has a positive coefficient, so \(\lambda\)
+increases at both high and low degree days.
+
+I don't see an easy solution, so for now, I am going to drop back to a
+model just using snow cover, which has a negative coefficient for the
+quadratic term and therefore decreases lambda at more extreme values.
+
+\hypertarget{simple-snow-cover-model}{%
+\subsection{Simple snow cover model}\label{simple-snow-cover-model}}
+
+So, here are the reworked functions just using snow cover:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# Function Lambda Model2-----------------------------------------------}
+\CommentTok{# inputs: lambda vector, and data frame of predictor variables}
+\CommentTok{# outputs: linear model for forecasting}
+
+\NormalTok{lambda_model2 <-}\StringTok{ }\ControlFlowTok{function}\NormalTok{(}\DataTypeTok{y=}\NormalTok{df_clean}\OperatorTok{$}\NormalTok{Lambda,}\DataTypeTok{z=}\NormalTok{best_preds)\{}
+\NormalTok{  y <-}\StringTok{ }\NormalTok{df_clean}\OperatorTok{$}\NormalTok{Lambda}
+  \CommentTok{# x_1 <- z[,1] # Grow.Season.DD.all.days}
+\NormalTok{  x_}\DecValTok{2}\NormalTok{ <-}\StringTok{ }\NormalTok{z[,}\DecValTok{3}\NormalTok{]  }\CommentTok{# Snow.Cover}
+\NormalTok{  forecast_model <-}\StringTok{ }\KeywordTok{lm}\NormalTok{(y}\OperatorTok{~}\StringTok{ }\KeywordTok{poly}\NormalTok{(x_}\DecValTok{2}\NormalTok{,}\DecValTok{2}\NormalTok{))}
+\NormalTok{\}}
+
+\CommentTok{# Function Lambda predict2 -------------------------------------------------}
+\CommentTok{# inputs: linear model, degree days (vector), snow cover (vector)}
+\CommentTok{# outputs: predicted lambda}
+
+\NormalTok{lambda_predict2 <-}\StringTok{ }\ControlFlowTok{function}\NormalTok{(}\DataTypeTok{m=}\NormalTok{my_model,}\DataTypeTok{snow=}\KeywordTok{c}\NormalTok{(}\FloatTok{0.83}\NormalTok{,.}\DecValTok{74}\NormalTok{)) \{}
+
+\NormalTok{z <-}\StringTok{ }\KeywordTok{predict}\NormalTok{(}\DataTypeTok{object=}\NormalTok{m, }\DataTypeTok{newdata=}\KeywordTok{data.frame}\NormalTok{(}\DataTypeTok{x_2=}\NormalTok{snow))}
+\NormalTok{z[z}\OperatorTok{<}\DecValTok{0}\NormalTok{] <-}\StringTok{ }\DecValTok{0}   \CommentTok{# reset to 0 any predicted negative values for lambda}
+\KeywordTok{return}\NormalTok{(z)}
+\NormalTok{\}}
+
+\NormalTok{param_df2 <-}\StringTok{ }\KeywordTok{data.frame}\NormalTok{(}\DataTypeTok{snow_cover=}\KeywordTok{seq}\NormalTok{(}\DataTypeTok{from=}\NormalTok{snow_low, }\DataTypeTok{to=}\NormalTok{snow_high, }\DataTypeTok{length.out=}\DecValTok{20}\NormalTok{),}
+                        \DataTypeTok{lambda=}\OtherTok{NA}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Now with these simplified functions, we run the model once again:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# apply function to each row}
+\ControlFlowTok{for}\NormalTok{ (i }\ControlFlowTok{in} \DecValTok{1}\OperatorTok{:}\KeywordTok{nrow}\NormalTok{(param_df2))\{}
+\NormalTok{  param_df2[i,}\DecValTok{2}\NormalTok{] <-}\StringTok{ }\KeywordTok{lambda_predict2}\NormalTok{(}\DataTypeTok{m=}\KeywordTok{lambda_model2}\NormalTok{(),}
+                                  \DataTypeTok{snow=}\NormalTok{param_df2[i,}\DecValTok{1}\NormalTok{])}
+\NormalTok{\}}
+\NormalTok{plot_}\DecValTok{1}\NormalTok{ <-}\StringTok{ }\KeywordTok{ggplot}\NormalTok{(param_df2,}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x=}\NormalTok{snow_cover,}\DataTypeTok{y=}\NormalTok{lambda)) }\OperatorTok{+}
+\StringTok{          }\KeywordTok{geom_point}\NormalTok{() }\OperatorTok{+}
+\StringTok{          }\KeywordTok{xlab}\NormalTok{(}\StringTok{"Snow Cover"}\NormalTok{) }\OperatorTok{+}
+\StringTok{          }\KeywordTok{ylab}\NormalTok{(}\StringTok{"Predicted Lambda"}\NormalTok{)}
+
+\KeywordTok{plot}\NormalTok{(plot_}\DecValTok{1}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{BromusUpdate_files/figure-latex/unnamed-chunk-12-1.pdf}
+
+These results look much more reasonable. The maximum predicted
+\(\lambda\) is only 2.5, which is still high, but not unreasonable. And
+positive population growth (\(\lambda > 1\)) is predicted for snow cover
+values from \textasciitilde{} 35\% to 99\%.
+
+And, for comparison, here is a plot of the original data from which the
+prediction equation was derived:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{df <-}\StringTok{ }\KeywordTok{data.frame}\NormalTok{(}\DataTypeTok{Snow.Cover=}\NormalTok{df_clean}\OperatorTok{$}\NormalTok{Snow.Cover, }\DataTypeTok{Lambda=}\NormalTok{df_clean}\OperatorTok{$}\NormalTok{Lambda)}
+\NormalTok{plot_}\DecValTok{2}\NormalTok{ <-}\StringTok{ }\KeywordTok{ggplot}\NormalTok{(df,}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x=}\NormalTok{Snow.Cover,}\DataTypeTok{y=}\NormalTok{Lambda)) }\OperatorTok{+}
+\StringTok{          }\KeywordTok{geom_point}\NormalTok{() }\OperatorTok{+}
+\StringTok{          }\KeywordTok{xlab}\NormalTok{(}\StringTok{"Snow Cover"}\NormalTok{) }\OperatorTok{+}
+\StringTok{          }\KeywordTok{ylab}\NormalTok{(}\StringTok{"Observed Lambda"}\NormalTok{)}
+
+\KeywordTok{plot}\NormalTok{(plot_}\DecValTok{2}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{BromusUpdate_files/figure-latex/unnamed-chunk-13-1.pdf}
+
+\hypertarget{remaining-questions-and-issues}{%
+\subsection{Remaining questions and
+issues}\label{remaining-questions-and-issues}}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  Obviously, the biggest problem is what to do about these environmental
+  variables like degree days that do not have well-behaved quadratic
+  functions. I wonder if this is an artifact caused by snow cover being
+  manipulated, but environmental variables not being controlled.
+  However, I thought that Alden had provided me with just data from all
+  the control plots, so I don't know if this is the issue. I was really
+  hoping we could have at least two predictor variables in the
+  regression model, but that may not work for this data set.
+\item
+  In order for Matt to use this model for continental projections, we
+  will need snow cover for each pixel in the continental landscape. From
+  talking with Alden, it sounds like those data will be available,
+  although I don't know much about the grain sizes and resolution.
+\item
+  In the first set of regression models, there is a strong effect of
+  initial density, suggesting density dependence, but both the linear
+  and quadratic coefficients are positive, so this is actually some form
+  of inverse density dependence. I can't tell if this is an artifact, or
+  if the density effects are what is actually driving the other patterns
+  that we are seeing. But we need to discuss this more.
+\item
+  Alden's data set has additional columns indicating snow conditions
+  (Upwind, downwind, plus, minus). I have ignored those designations in
+  this analysis, but they obviously contribute to variation in
+  \(\lambda\). If you want, it would be easy enough to go back and
+  subscript the data to fit to fewer points. That will reduce the
+  variance, although I don't think it is going to change the shape of
+  the curves that much.
+\item
+  As you can see, the basic model with snow cover looks reasonable, but
+  we need to figure out what, if anything to do with the other
+  environmental variables. Once we get this sorted out and agree on a
+  final regression model, I will clean up the code so that Matt has a
+  single function to work with for generating maps.
+\item
+  Michael L. and Alden (and Jen??), we should probably talk again on
+  skype after you have digested these results. I will hold off on any
+  other analyses until we have talked.
+\end{enumerate}
+
+
+\end{document}
