@@ -1,5 +1,5 @@
 ---
-title: '*Bromus* Initial Analysis'
+title: '*Bromus* Density Dependence Analysis'
 author: "Nick Gotelli"
 date: "7/30/2019"
 output:
@@ -14,7 +14,9 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ## Data sources and cleaning
-These data were provided by Alden Griffith and Michael Loic. After talking with Alden, we decided to use lambda values that had been estimated from changes in the number of individuals in marked plots, rather than analysis of stage transition matrices. For a number of control and snow-manipulated plots, we have the estimated lambda $(N_{t + 1}/N_{t})$ based on annual counts of cheatgrass for 7 consecutive years. For incorporating density dependence, we will use $log(\lambda) = r$.
+These data were provided by Alden Griffith and Michael Loic. After talking with Alden, we decided to use $\lambda$ values that had been estimated from changes in the number of individuals in marked plots, rather than analysis of stage transition matrices. For a number of control plots, Alden and Michael have estimated lambda $(N_{t + 1}/N_{t})$ based on annual counts of cheatgrass for two consecutive years. For some of the plots, there are actually 7 consecutive years of data, but I am ignoring plot identity, and simply using $\lambda$ calculated for pair of consecutive abundances. For each of these measures, the variable `Starting.Density` gives $N_t$, the abundance in the first year.
+
+For a simple logistic growth equation, there should be a negative linear relationship between  $r =        log(\lambda)$ and $N_t$.
 
 I cleaned the initial data file (`Bromus Lambda and Climate Data.csv`), moving a notes column to initial comment lines, and adding 4 missing values as `NA`. The modified data are in `CleanBromusData.csv`.
 
@@ -32,7 +34,7 @@ df_clean$r <- log(df_clean$Lambda)    # create response variable r from log(lamb
 ```
 
 ## Initial regression models
-With the data frame set up, the first analysis was to use each of the predictor variables (snow, degree-days, precipitation, etc.), with $\lambda$ as the response variable. For each variable, I built a linear and a quadratic regression model.
+With the data frame set up, the first analysis was to use each of the predictor variables (snow, degree-days, precipitation, etc.), with $r$ as the response variable. For each variable, I built a linear and a quadratic regression model.
 
 ```{r}
 # Function Model Fit ------------------------------------------------------
@@ -66,23 +68,18 @@ A couple things jump out from these univariate regressions. First, the quadratic
 The four strongest predictors were:
 
 - snow cover (quadratic r^2^ = 0.838)
-- initial density (linear r^2^ = 0.638)
 - winter precip total (quadratic r^2^ = 0.661)
+- initial density (linear r^2^ = 0.638)
 - growing season precipitation rain (quadratic r^2^ = 0.559)
 
-I had originally intended to include one of the temperature variables, but they perform poorly compared to precip and snow cover variables, so we will start with just these initial 4. The linear regression of r versus initial density is the relationship for a simple logistic growth model. The performance of the quadratic model was virtually identical, so there is no evidence for Allee effects or other more complex functions relating per capita growth rate to density. So we will stick with the linear model. 
+I had originally intended to include one of the temperature variables, but they perform poorly compared to precip and snow cover variables, so we will start with just these initial 4. 
 
 
+## Simple linear density dependence model
 
-
-I wanted to have predictors related to snow, temperature, and precipitation, as those seem like the best suspects for what is driving distribution. Based on the adjusted r^2^, the best 3 predictors were `Snow.Cover`, `Grow.Season.Precip.Total`, and `Grow.Season.DD.all.days`. There was also a significant effect of `Starting.Density`, which I will discuss near the end.
-
-## Initial multiple regression model
-
-Now taking those 3 best predictors based on snow, precip, and temperature, here is the full model:
+We start by ignoring all the climate variables and just fit the collection of annual $\lambda$ values to the linear function we expect for density dependence in a plain-vanilla logistic growth model:
 
 ```{r}
-str(df_preds)
 # best variables are:
 # snow.cover (6)
 # density (1)
@@ -105,6 +102,23 @@ final_df <- data.frame(r=y,
 
 model_dd <- summary(lm(data=final_df,r~density))
 print(model_dd)
+ggplot(data=final_df,aes(x=density,y=r)) +
+  geom_point() +
+  stat_smooth(method="lm", se=TRUE, fill=NA,
+                formula=y ~ poly(x, 1, raw=TRUE),colour="red") 
+```
+
+These results look pretty nice. The relationship is roughly linear, and we pick up a sizeable chunk of the variation in $r$. The intercept is 1.206162, which corresponds to the maximum $r$ that occurs with no crowding ($N_t$ = 0). This is the constant $r$ that appears in the logistic growth equation. It is large ($\lambda = exp(r) = 3.34$), but reasonable for an annual plant. You can see there are some low-density plots that have even higher values than this.
+
+The other parameter of interest is to set $r = 0$ and solve for $N$. This is the estimate of the carrying capacity $K$ in the logistic growth equation. For these data, we get K = 714 individuals.
+
+Alden and Michael, do these values of $r = 1.21 individuals/individual\times year$ and $K = 714 individuals$ seem biologically reasonable for *Bromus**?  
+
+## Quadratic density dependence model
+
+The linear equation we fit above looks pretty good, but I wanted to check and see if there is any improvement by adding a quadratic term. The quadratic term might pop up if we have Allee effects generating inverse density dependence at low densities. This can occur in social animals with behaviors such as cooperative predator defense, cooperative hunting, and mate searching. For plants, you could see if it clumps of plants act as pollinator magnets and attract proportionally more pollinators than solitary plants. That doesn't seem likely for *Bromus*, but it is good to check the model.
+
+```{r}
 model_dd <- summary(lm(data=final_df,r~poly(density,2)))
 print(model_dd)
 ggplot(data=final_df,aes(x=density,y=r)) +
@@ -113,187 +127,15 @@ ggplot(data=final_df,aes(x=density,y=r)) +
                 formula=y ~ poly(x, 2, raw=TRUE),colour="red") +
   stat_smooth(method="lm", se=TRUE, fill=NA,
                 formula=y ~ poly(x, 1, raw=TRUE),colour="blue")
-
-model_1 <- summary(lm(y~poly(x_1,2) + x_2 + poly(x_3,2) + poly(x_4,2)))
-print(model_1)
-
 ```
 
-## 2-variable model with an interaction term
+With one exception (see below), this output looks reasonable. The quadratic term is marginally non-significant (*p* = 0.10, and the quadratic fit does not look very different from the linear fit, except at very high densities, where the density dependence looks a little weaker than predicted by the linear model. Based on this comparison, I am comfortable with the linear model (a.k.a. logisitic growth) for estimating parameters for snow cover and other abiotic variables. Following up on a suggestion from Alden, in the continental forecasting model, we will actually fix N=0 for all plots. That way we are predicting lambda as a function of environmental variables for *Bromus* that are colonizing an empty pixel. There will not be any density effect in the continental forecast, but we do want the density effect when we fit the prediction functions to make sure we are not confounding abiotic effects with density effects in the original *Bromus* data.
 
-Although the precipitation variable was initially a strong predictor, its effect is non-significant with both snow cover and degree days in the model, so I dropped it at this point. The next step was to try a 2-variable model but include an interaction term between snow cover and degree days:
+## Trouble in the quadratic model
 
-```{r}
-# Try adding an interaction term -----------------------------------------
+And now for the fly in the ointment. Take a look at the intercept coefficient in the fitted quadratic model. Its value is -0.0500. That seems dead wrong to me. Why isn't it something slightly larger than 1.2, the intercept for the linear model? In the graph you can see that those two estimates should be very similar to one another for the point at which N = 0. 
 
-model_3 <- summary(lm(y~poly(x_1,2) + poly(x_3,2) + x_1*x_3))
-print(model_3)
-```
+I can't see why the intercept estimates should be so far off. Note that this is a simple least-squares solution, so I am not using any kind of iterative fitting of a non-linear equation.
 
-## Final 2-variable prediction model
-
-However, the interaction term does not add anything. So, we are left with just a two-variable quadratic model for predicting $\lambda$:
-
-```{r}
-model_2 <- summary(lm(y~poly(x_1,2) + poly(x_3,2)))
-print(model_2)
-
-```
-In this model, all of the coefficients are significantly different from zero, and the model explains over 50\% of the variance in $\lambda$, which is decent. For now, that is the model we will start with, although it will be easy enough to change if there are other variables you want to consider.
-
-## Functions for fitting and predicting with new values
-
-The next two functions are used to fit the model to the data, and then to predict new values of $\lambda$ based on new inputs of snow cover or degree days.
-
-```{r}
-# Function Lambda Model -----------------------------------------------
-# inputs: lambda vector, and data frame of predictor variables
-# outputs: linear model for forecasting
-
-lambda_model <- function(y=df_clean$r,z=best_preds){
-  y <- df_clean$r
-  x_1 <- z[,1] # Grow.Season.DD.all.days
-  x_2 <- z[,3]  # Snow.Cover
-  forecast_model <- lm(y~poly(x_1,2) + poly(x_2,2))
-}
-
-# Function Lambda predict -------------------------------------------------
-# inputs: linear model, degree days (vector), snow cover (vector)
-# outputs: predicted lambda
-
-lambda_predict <- function(m=my_model,degree_days=c(800,600),snow=c(0.83,.74)) {
-
-z <- predict(object=m, newdata=data.frame(x_1=degree_days,x_2=snow))
-z[z<0] <- 0   # reset to 0 any predicted negative values for lambda
-return(z)
-}
-
-```
-
-## Using the functions for forecasting continental distributions
-
-These two functions will make it possible to generate predictions for any values of snow cover and degree days. For example, here the functions are run for two arbitrary vectors of 10 elements each snow cover and degree days. The output is the estimated $\lambda$ for each pair of the variables:
-
-```{r}
-lambda_predict(m=lambda_model(),degree_days=sample(600:800,10),snow=runif(10))
-```
-
-When we get to the next step, Matt will use this line of code to generate an estimated lambda for any map location for which we have the snow and degree days measurements.
-
-## Sweeping the parameters and constructing a heat map for $\lambda$
-
-Before we build the continental map, it is instructive to sweep the parameters and visualize the response surface of $\lambda$. To set limits on snow cover and degree days, I will consider snow cover between 0 and 100%, and will expand the degree day measurements by 50% beyond the measured limits in Alden and Michael's experiment:
-
-```{r}
-# set limits for parameter inputs
-snow_low <- 0.0
-snow_high <- 1.0
-dd_low <- 0.5*min(x_1)
-dd_high <- 1.5*max(x_1)
-
-# create parameter data frame with column for output
-param_df <- expand.grid(snow_cover=seq(from=snow_low, to=snow_high, length.out=20),
-                        degree_days=seq(from=dd_low, to=dd_high,length.out=20))
-param_df$r <- NA
-
-# apply function to each row
-for (i in 1:nrow(param_df)){
-  param_df[i,3] <- lambda_predict(m=lambda_model(),
-                                  degree_days=param_df[i,2],
-                                  snow=param_df[i,1])
-}
-
-```
-
-## Problems with the model
-Scanning through the completed `param_df` data frame reveals impossibly high values of lambda for most parameter combinations. The problem is coming from the degree days data:
-
-```{r}
-qplot(x=best_preds[,1],y=df_clean$r)                                  
-
-```
-
-
-Because of the cluster of small values at 800 degree days, the quadratic term in the regression model has a positive coefficient, so $\lambda$ increases at both high and low degree days. 
-
-I don't see an easy solution, so for now, I am going to drop back to a model just using snow cover, which has a negative coefficient for the quadratic term and therefore decreases lambda at more extreme values.
-
-## Simple snow cover model
-So, here are the reworked functions just using snow cover:
-```{r}
-# Function Lambda Model2-----------------------------------------------
-# inputs: lambda vector, and data frame of predictor variables
-# outputs: linear model for forecasting
-
-lambda_model2 <- function(y=df_clean$r,z=best_preds){
-  y <- df_clean$r
-  # x_1 <- z[,1] # Grow.Season.DD.all.days
-  x_2 <- z[,3]  # Snow.Cover
-  forecast_model <- lm(y~ poly(x_2,2))
-}
-
-# Function Lambda predict2 -------------------------------------------------
-# inputs: linear model, degree days (vector), snow cover (vector)
-# outputs: predicted lambda
-
-lambda_predict2 <- function(m=my_model,snow=c(0.83,.74)) {
-
-z <- predict(object=m, newdata=data.frame(x_2=snow))
-z[z<0] <- 0   # reset to 0 any predicted negative values for lambda
-return(z)
-}
-
-param_df2 <- data.frame(snow_cover=seq(from=snow_low, to=snow_high, length.out=20),
-                        lambda=NA)
-```
-
-Now with these simplified functions, we run the model once again:
-
-```{r}
-
-# apply function to each row
-for (i in 1:nrow(param_df2)){
-  param_df2[i,2] <- lambda_predict2(m=lambda_model2(),
-                                  snow=param_df2[i,1])
-}
-plot_1 <- ggplot(param_df2,aes(x=snow_cover,y=lambda)) +
-          geom_point() +
-          xlab("Snow Cover") +
-          ylab("Predicted Lambda")
-
-plot(plot_1)
-```
-
-
-These results look much more reasonable. The maximum predicted $\lambda$ is only 2.5, which is still high, but not unreasonable. And positive population growth ($\lambda > 1$) is predicted for snow cover values from \~ 35% to 99%.
-
-
-And, for comparison, here is a plot of the original data from which the prediction equation was derived:
-
-```{r}
-df <- data.frame(Snow.Cover=df_clean$Snow.Cover, Lambda=df_clean$r)
-plot_2 <- ggplot(df,aes(x=Snow.Cover,y=Lambda)) +
-          geom_point() +
-          xlab("Snow Cover") +
-          ylab("Observed Lambda")
-
-plot(plot_2)
-```
-
-
-## Remaining questions and issues
-
-1. Obviously, the biggest problem is what to do about these environmental variables like degree days that do not have well-behaved quadratic functions. I wonder if this is an artifact caused by snow cover being manipulated, but environmental variables not being controlled. However, I thought that Alden had provided me with just data from all the control plots, so I don't know if this is the issue. I was really hoping we could have at least two predictor variables in the regression model, but that may not work for this data set.
-
-2. In order for Matt to use this model for continental projections, we will need snow cover for each pixel in the continental landscape. From talking with Alden, it sounds like those data will be available, although I don't know much about the grain sizes and resolution.
-
-3. In the first set of regression models, there is a strong effect of initial density, suggesting density dependence, but both the linear and quadratic coefficients are positive, so this is actually some form of inverse density dependence. I can't tell if this is an artifact, or if the density effects are what is actually driving the other patterns that we are seeing. But we need to discuss this more.
-
-4. Alden's data set has additional columns indicating snow conditions (Upwind, downwind, plus, minus). I have ignored those designations in this analysis, but they obviously contribute to variation in $\lambda$. If you want, it would be easy enough to go back and subscript the data to fit to fewer points. That will reduce the variance, although I don't think it is going to change the shape of the curves that much.
-
-5. As you can see, the basic model with snow cover looks reasonable, but we need to figure out what, if anything to do with the other environmental variables. Once we get this sorted out and agree on a final regression model, I will clean up the code so that Matt has a single function to work with for generating maps.
-
-6. Michael L. and Alden (and Jen??), we should probably talk again on skype after you have digested these results. I will hold off on any other analyses until we have talked.
-
-
+Can anyone figure out what is going on with these data? I suppose I could just ignore it because we are going to use the linear density model, but it makes me uneasy to see this kind of parameter fit. Your comments on this issue will be most appreciated!
 
