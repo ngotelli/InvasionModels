@@ -1,0 +1,170 @@
+---
+title: '*Bromus* Density Dependence Analysis'
+author: "Nick Gotelli"
+date: "7/30/2019"
+output:
+  pdf_document: default
+  html_document:
+    highlight: tango
+    theme: cerulean
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Updatre status
+This update ignores the puzzling quadratic coefficient for density dependence, and just moves on to fitting the other abiotic predictors and creating a heat map of the parameter space.
+
+
+## Data sources and cleaning
+These data were provided by Alden Griffith and Michael Loic. After talking with Alden, we decided to use $\lambda$ values that had been estimated from changes in the number of individuals in marked plots, rather than analysis of stage transition matrices. For a number of control plots, Alden and Michael have estimated lambda $(N_{t + 1}/N_{t})$ based on annual counts of cheatgrass for two consecutive years. For some of the plots, there are actually 7 consecutive years of data, but I am ignoring plot identity, and simply using $\lambda$ calculated for pair of consecutive abundances. For each of these measures, the variable `Starting.Density` gives $N_t$, the abundance in the first year.
+
+For a simple logistic growth equation, there should be a negative linear relationship between  $r =        log(\lambda)$ and $N_t$.
+
+I cleaned the initial data file (`Bromus Lambda and Climate Data.csv`), moving a notes column to initial comment lines, and adding 4 missing values as `NA`. The modified data are in `CleanBromusData.csv`.
+
+```{r}
+# Preliminaries -----------------------------------------------------------
+library(tidyverse)
+
+# Get input data ----------------------------------------------------------
+df <- read.csv(file="../CleanData/CleanBromusData.csv",comment.char="#")
+df <- df[,-ncol(df)]                 # remove empty final column
+df_clean <- df[complete.cases(df),]  # remove 4 missing lambda
+
+df_preds <- df_clean[,8:18]           # create dataframe of predictor variables
+df_clean$r <- log(df_clean$Lambda)    # create response variable r from log(lambda)
+```
+
+## Initial regression models
+With the data frame set up, the first analysis was to use each of the predictor variables (snow, degree-days, precipitation, etc.), with $r$ as the response variable. For each variable, I built a linear and a quadratic regression model.
+
+```{r}
+# Function Model Fit ------------------------------------------------------
+# inputs: response variable, predictor variable
+# outputs: adjusted r2 for linear and quadratic regression models
+
+quad_fit <- function(x=df_clean$Snow.Cover, y=df_clean$r){
+  M1 <- summary(lm(y~x))
+  M2 <- summary(lm(y~poly(x,2)))
+  return(c(M1$adj.r.squared,M2$adj.r.squared))
+}
+# -------------------------------------------------------------------------
+# map all predictor variables to quad_fit
+summary_df <- map(df_preds,quad_fit,y=df_clean$r)
+
+# put into a summary data frame and add column labels
+summary_df <- t(bind_rows(summary_df))
+colnames(summary_df) <- c("Linear","Quadratic")
+# -------------------------------------------------------------------------
+```
+
+## First screening of predictor variables
+In this table, each row is a different model with a single predictor variable, and the data frame shows the adjusted r^2^ for each model. The two columns are for a linear model $(y \sim x)$ and a quadratic model $(y \sim x + x^2)$.
+
+```{r}
+print(summary_df)
+```
+
+A couple things jump out from these univariate regressions. First, the quadratic model often fits better than the corresponding linear model (even after imposing a penalty for the additional parameter), so we have good theoretical grounds and empirical support for going with the quadratic models.
+
+The four strongest predictors were:
+
+- snow cover (quadratic r^2^ = 0.838)
+- winter precip total (quadratic r^2^ = 0.661)
+- initial density (linear r^2^ = 0.638)
+- growing season precipitation rain (quadratic r^2^ = 0.559)
+
+I had originally intended to include one of the temperature variables, but they perform poorly compared to precip and snow cover variables, so we will start with just these initial 4. 
+
+
+## Simple linear density dependence model
+
+We start by ignoring all the climate variables and just fit the collection of annual $\lambda$ values to the linear function we expect for density dependence in a plain-vanilla logistic growth model:
+
+```{r}
+# best variables are:
+# snow.cover (6)
+# density (1)
+# winter precip total. (11) 
+# grow season precip rain (3)
+
+best_preds <- df_preds[,c(6,1,11,3)]
+  
+y <- df_clean$r
+x_1 <- best_preds[,1]
+x_2 <- best_preds[,2]
+x_3 <- best_preds[,3]
+x_4 <- best_preds[,4]
+
+final_df <- data.frame(r=y,
+                       snow_cover=x_1,
+                       density=x_2,
+                       win_precip <- x_3,
+                       gs_rain <- x_4)
+
+model_dd <- summary(lm(data=final_df,r~density))
+print(model_dd)
+ggplot(data=final_df,aes(x=density,y=r)) +
+  geom_point() +
+  stat_smooth(method="lm", se=TRUE, fill=NA,
+                formula=y ~ poly(x, 1, raw=TRUE),colour="red") 
+```
+
+These results look pretty nice. The relationship is roughly linear, and we pick up a sizeable chunk of the variation in $r$. The intercept is 1.206162, which corresponds to the maximum $r$ that occurs with no crowding ($N_t$ = 0). This is the constant $r$ that appears in the logistic growth equation. It is large ($\lambda = exp(r) = 3.34$), but reasonable for an annual plant. You can see there are some low-density plots that have even higher values than this.
+
+The other parameter of interest is to set $r = 0$ and solve for $N$. This is the estimate of the carrying capacity $K$ in the logistic growth equation. For these data, we get K = 714 individuals.
+
+Alden and Michael, do these values of $r = 1.21 individuals/individual\times year$ and $K = 714 individuals$ seem biologically reasonable for *Bromus**?  
+
+## Quadratic model for snow cover
+
+```{r}
+model_snow_cover <- summary(lm(data=final_df,r~poly(snow_cover,2)))
+print(model_snow_cover)
+ggplot(data=final_df,aes(x=snow_cover,y=r)) +
+  geom_point() +
+  stat_smooth(method="lm", se=TRUE, fill=NA,
+                formula=y ~ poly(x, 2, raw=TRUE),colour="red") 
+```
+
+As with the effects of initial density, the intercept for the quadratic model still does not look correct to me, suggesting that either I am doing something wrong in the code or I don't understand the output from a linear model.
+
+## Quadratic model for winter precipitation
+
+```{r}
+model_win_precip <- summary(lm(data=final_df,r~poly(win_precip,2)))
+print(model_win_precip)
+ggplot(data=final_df,aes(x=win_precip,y=r)) +
+  geom_point() +
+  stat_smooth(method="lm", se=TRUE, fill=NA,
+                formula=y ~ poly(x, 2, raw=TRUE),colour="red") 
+```
+
+This also looks reasonable (except for the intercept), but it will be highly correlated with snow cover, and it is not clear what will happen with both variables in the model.
+
+## Quadratic model for growing season rainfall
+
+```{r}
+model_gs_rain <- summary(lm(data=final_df,r~poly(gs_rain,2)))
+print(model_gs_rain)
+ggplot(data=final_df,aes(x=gs_rain,y=r)) +
+  geom_point() +
+  stat_smooth(method="lm", se=TRUE, fill=NA,
+                formula=y ~ poly(x, 2, raw=TRUE),colour="red") 
+```
+
+It is starting to look like the intercept for these polynomial models is always -0.05. I will let that go for now, but we will need to get this straightened out. The growing season rainfall has an ugly inverted quadratic (caused by the positive coefficient for the x^2^ term). Let's see how it performs in a multiple regression model.
+
+## Saturated regression model with all predictors
+
+```{r}
+model_saturated <- summary(lm(data=final_df,r~poly(gs_rain,2) +
+                                              poly(density,1) +
+                                              poly(snow_cover,2) +
+                                              poly(win_precip,2)))
+                                              
+print(model_saturated)
+```
+

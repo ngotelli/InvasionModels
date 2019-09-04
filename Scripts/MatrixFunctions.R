@@ -40,7 +40,7 @@ library(parallel)
 # input: x=vector of temperatures, y=vector of transition elements
 # output: fitted regression model
 est_trans <- function(x=runif(4),y=runif(4)){
-	fitted <- lm(y~poly(x,2))
+	fitted <- lm(y~poly(x,2,raw=TRUE))
 	return(fitted)
 	
 }
@@ -54,7 +54,7 @@ pred_trans <- function(new=runif(1,0,40),f=NULL){
             	x <- runif(4)
             	y <- runif(4)
             	df<- data.frame(x,y)   
-            	f<- lm(y~poly(x,2),data=df)}
+            	f<- lm(y~poly(x,2,raw=TRUE),data=df)}
            
 	z <- predict(object=f, newdata=data.frame(x=new))
 	return(z)

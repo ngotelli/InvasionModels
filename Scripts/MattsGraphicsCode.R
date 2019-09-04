@@ -66,13 +66,15 @@ lambda_rasts <- mclapply(1:12, function(x, tempRasts){
   rast <- tempRasts[[x]]
   keep <- !is.na(rast[]) # index NAs
 #-------------------------------------
-  lamb <- lam_gen(rast[keep]) # calc lamba for each temp
-  lamb[lamb<1] <-0 # clip non-increasing values to 0
-#-------------------------------------
-  # lamb <- lam2_gen(x=exp_tmp,
-  # 								 y=emp_lam,
-  # 								 z=rast[keep]) # calc lamba for each temp
+  # original function based on transition matrices
+  # lamb <- lam_gen(rast[keep]) # calc lamba for each temp
   # lamb[lamb<1] <-0 # clip non-increasing values to 0
+#-------------------------------------
+# use lambda2_gen, which is based on lambdas, not transition matrices
+  lamb <- lam2_gen(x=exp_tmp,
+  								 y=emp_lam,
+  								 z=rast[keep]) # calc lamba for each temp
+  lamb[lamb<1] <-0 # clip non-increasing values to 0
 #-------------------------------------
   rast[which(keep)] <- unlist(lamb) # assign lamba back to raster
   return(rast)}, tempRasts=tmean, mc.cores=2)
