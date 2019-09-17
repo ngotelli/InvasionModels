@@ -249,3 +249,11 @@ Since the interaction term doesn't add anything, we will not include it and stic
 
 ## Heat map for visualizing lambda values
 
+```{r}
+vec_len <- 20
+snow_vec <- seq(0,1,length.out=vec_len)
+precip_vec <- seq(0,200,length.out=vec_len)
+hutchinson_df <- expand.grid(snow=snow_vec,precip=precip_vec)
+hutchinson_df$density <- 0
+hutchinson_df$r <- 0
+```
