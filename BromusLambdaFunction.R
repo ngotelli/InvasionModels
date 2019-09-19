@@ -105,3 +105,31 @@ str(hutchinson_df)
 # heat_map <- ggplot(data=heat_map_data,mapping=aes(x=snow_cover,y=win_precip_rain,fill=r))
 # heat_map + geom_tile() + scale_fill_viridis_c()
 
+
+# Code for estimating carrying capacity -----------------------------------
+
+# cf <- summary(model_reduced2)$coefficients[,1]    # grab the coefficients
+# d <- heat_map_data # rename the data frame
+
+# now create new column with K values
+# heat_map_data$K <- (cf[1] + cf[2]*d[[1]] + cf[3]*d[[1]]^2 +
+#                    cf[4]*d[[2]] + cf[5]*d[[2]]^2)/(-1*cf[6])
+
+# convert negatives to 0
+# heat_map_data$K[heat_map_data$K<=0] <- 0
+
+# create heat map
+# heat_map_k <- ggplot(data=heat_map_data,mapping=aes(x=snow_cover,y=win_precip_rain,fill=K))
+# heat_map_k + geom_tile() + scale_fill_viridis_c()
+
+# summarize distribution of K values greater than 0
+# real_k <- heat_map_data$K[heat_map_data$K>0]
+# summary(real_k)
+
+# get snow and precip for smallest positive K
+# heat_map_data$snow_cover[which(heat_map_data$K==min(heat_map_data$K[heat_map_data$K>0]))]
+# heat_map_data$win_precip_rain[which(heat_map_data$K==min(heat_map_data$K[heat_map_data$K>0]))]
+
+# get snow and precip for largest K
+# heat_map_data$snow_cover[which(heat_map_data$K==max(heat_map_data$K))]
+# heat_map_data$win_precip_rain[which(heat_map_data$K==max(heat_map_data$K))]
