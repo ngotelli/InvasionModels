@@ -1,3 +1,7 @@
+# Demographic SDM predictor for Bromus
+# Uses updated data from Alden Griffiths version 3
+# Version 3 makes an improved conversion from snow cover to snow depth
+#
 ## ----setup, include=FALSE------------------------------------------------
 knitr::opts_chunk$set(echo = TRUE)
 
@@ -9,7 +13,9 @@ library(tidyverse)
 # Get input data ----------------------------------------------------------
 
 # adjust path for grabbing input file
-df <- read.table(file="CleanData/Bromus_Clean_V2_Aug-28-19.csv",
+# df <- read.table(file="CleanData/Bromus_Clean_V2_Aug-28-19.csv",
+#                  sep=",",header=TRUE,stringsAsFactors=FALSE)
+df <- read.table(file="../CleanData/Bromus_Clean_V3_Oct-08-19.csv",
                  sep=",",header=TRUE,stringsAsFactors=FALSE)
 df <- df[,-ncol(df)]                 # remove empty final column
 df_clean <- df[complete.cases(df),]  # remove 4 missing lambda
