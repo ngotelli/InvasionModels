@@ -1,0 +1,47 @@
+---
+title: "Invasion Demography Draft"
+author: "Gotelli et al."
+date: "6/23/2020"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+rprojroot::find_rstudio_root_file()
+```
+
+A major research focus in ecology is forecasting how species and communities will change in response to climate warming and other environmental drivers (). Such shifts can potentially bring together new combinations of species that previously have not co-ccurred before, and the geograpnic ranges of many non-native species do seem to be changing recent decades. Some of these species have strong direct effects on native assemblages as predators, competitors, and parasites, as well as indirect cascading effects through habitat modifications.
+
+Although a variety of forecasting models are currently used to predict changes in geographic ranges, most of them rely on three basic data layers. The first is a set of geographic coordinates that specify the locations of current populations of the species. These records come from gbif, inaturalist, and other sources of museum records and private surveys in which the presence of species has been recorded. The second data layer is a set of environmental variable and climate variables, especially measures of temperature and precipitation, that have been measured, interpolated, and then downscaled for the locations of the individual populations. These two data layers are analyzed with a variety of species distribution models (SDMs), including MaxEnt, and more recent neural network and random forest approaches. These algorithms seek to estimate and optimize the probability of species occurrence as a function of environmental variables. The fitted model can then be used to forecast the probability of occurrence (or habitat suitability) at any location on a (terrestrial map) as a function of contemporary climate variables in that location. The third data layer is a forecast of future environmental conditions, often derived from climate change models, at different locations. This forecasting layer for future conditions can be combined with the species distribution model that was fit with contemporary climate variables to estimate suitability of future conditions for species occurrences.
+
+In spite of the diversity of methods for analyzing data of this form, they all suffer from two important limitations. The first limitation is that these models assume that populations are in equilibrium with their environmental conditions. In this equilibrium state, population occurrences would represent locations that are suitable for populations to persist. However, the pace of climate change has been rapidly increasing in recent decades, and even short-lived species may no longer be in equilibrium with their current abiotic environment. Indeed, many recent studies have emphasized that rates of spread of species may not be able to keep pace with the projected "climate velocity, and many models of climatic debt emphasize a disequilibrium between the current composition of a community, and the composition that would be predicted assuming an equilibrium with climate. 
+
+The second limitation is that most of the data sets used in species distribution modeling are based on presence-only data. In the absence of widespread standardized surveys, we have only the location of the presences of a species, but not locations in which absences have been recorded. Without true absences, most algorithms impute "pseudo-absences" typically by randomly placing absence points within an arbitrarily bounded domain that encompasses the recorded species occurrences. But for many groups of organisms (especially plants and invertebrates), many of the locations were pseudoabsences are imputed probably contain the species, but have not been properly sampled. The location of these pseudoabsences has a very large affect on the outcome of the model, but often the domain boundaries provided by users are arbitrary and can simply reflect the original raster that contained the occurrence records.
+
+These limitations have made the forecasting of both native and non-native species highly uncertain.  In this paper, we propose an alternative framework for forecasting the distribution of non-native species, that does not depend on the spatial pattern of population presences and absences, does not assume that populations are in equilibrium with their environment, and does not assume that the presence of a population is a good indicator of the climatic niche of a species.
+
+Instead, we argue for species distribution modeling that is based on demographic data. Basic life-table data describe rates of birth, individual growth, and death as a function of the age or size or stage of the organism. These data can be collected in a variety of ways, and can be converted to an estimate of r. In a model of exponential population growth, r is the intrinsic rate of increase, measured in units of time/individual*individual. Alternatively, when demographic rate data are not available, r can be estimated from sequential population censuses as loge(N(t+1)/N(t)). With either life table or population growth data, r is a natural metric for the potential for population persistence in different environmental conditions. If r is greater than 0.0, instantaneous birth rates exceed instantaneous death rates, and the population is able, at least in the short-term, to persist and grow. If r is less than 0.0, instantaneous death rates exceed instantaneous birth rates, and the population will, in the long-run, decline to extinction.  
+
+Here, we use examples from laboratory studies, field experiments, and field observational studies to illustrate three case studies of invasive species for which we forecast population growth rates across a map of the continental U.S. In each case, we find that the models generate realistic maps of habitat suitability when fitted with contemporary climate layers. These predictions based on demographic data are either comparable to, or better than, published predictions based on traditional species distribution models.
+
+METHODS
+
+The general framework for these analyses is simplified and adapted from Gotelli amd Ellison (2002, 2006). Three general equations describe the relationship between demography, environmental variables, and geographic location:
+
+1) r = f(E)
+
+The function f establishes the relationship between population growth rate (lambda) and the environmental conditions (E). In an experimental study, a life table response experiment (Caswell 200x)  would be used to rear organisms under constant conditions. Each level of temperature or some other continuous environmental variable would represent a separate, replicated treatment.  Alternatively, for a field based population study, a researcher would measure population size at two consecutive time steps, and the associated environmental conditions over that same interval. For both the experimental and non-experimental data, the fitted function f describes the relationship between environmental conditions and lambda. For an environmental variable z, we propose the simplest model for predicting r=log(lambda) should be
+
+f(E) = a + bz + cz^2
+
+In a least squares regression model, this is a quadratic function with fitted constants a, b, and c. We favor this model for theoretical reasons: for any environmental variable, there should be an optimal, intermediate level of the variable that maximizes population growth rate. Population growth rate decreases and the environmental variable moves away from the optimum. If there is a range of values of z within which population growth rate is positive, this range will include the peak. Although we have presented this framework in the context of a single environmental driver, the model can be easily extended with multiple regression to incorporate 2 or more drivers, such as precipitation and temperature.
+
+2) E = g(x,y)
+
+The function g describes the relationship between the environmental variable (E) and the location of a point in the landscape, based on its geographic coordinates (x,y). This data layer is usually created from smoothed and interpolated weather data, and is rarely modeled by the investigator. The data layer may be available for past, current, or future conditions based on climate forecasting and hind-casting models.
+
+3) r(xy) = f(g(xy))
+
+The final step is to estimate r for each pixel in the landscape by combining the calculations from (1) and (2). r can be treated as a continuous variable representing the ability of the population to achieve short-term population growth, given the set of environmental conditions at location (x,y). r is an unbounded continuous variable, and the more positive the value of r, the higher the growth rate, and presumably the better the environmental conditions are for population growth. A critical value in this continuum is r = 0, which is the dividing line between increasing and decreasing population growth rate. Modeling r as a function of environmental variables is an empirical realization of Hutchinson's definition of the niche: an n-dimensional hypervolume describing a combination of variables for which dN/dt > 0.
+
+
