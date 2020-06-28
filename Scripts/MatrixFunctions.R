@@ -97,7 +97,7 @@ mat_fill <- function(z=1) { # place predicted coefficients in new transition mat
 t2 <- map(t1,mat_fill) %>% # extract population growth rate from 
 map(lambda) %>%
 # t3 <- lapply(t2, function (x) ifelse(x < 0,0,x))
-map(~ifelse(. < 0,0,.))# rescale any values with lambda <0 to 0
+map(~ifelse(. <= 0,0,.))# rescale any values with lambda <0 to 0
 return(t2) 
 
 }
@@ -110,7 +110,8 @@ return(t2)
 lam2_gen <- function(x,y,z){
 . <- est_trans(x,y)
 . <- pred_trans(z,.)
-.[.<0] <- 0  # rescale any values with lambda <0 to 0
+# .[.<0] <- 0  # rescale any values with lambda <0 to 0
+ # .[.<0] <- 0  # rescale any values with lambda <1 to 0
  names(.) <- paste0("V",seq_along(z))
 . <- as.list(.)
 return(.)

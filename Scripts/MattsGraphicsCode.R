@@ -40,9 +40,9 @@ exp_tmp <- c(18.5,24,23.5,29.5)
 # set up temperature input vector for generating continental map
 con_temp <- 32
 
-# for lam2_gen function set up vector of empirical reported lambdas:
+# for lam2_gen function set up vector of empirical reported little_r:
 emp_lam <- c(0.051,0.120,0.137,0.092)
-emp_lam <- exp(emp_lam)
+# emp_lam <- exp(emp_lam)
 ################################################################################
 # download monthly worldclim temp, crop to North America, calc mean temp
 tmin <- getData(name="worldclim",
@@ -70,18 +70,19 @@ lambda_rasts <- mclapply(1:12, function(x, tempRasts){
   # lamb <- lam_gen(rast[keep]) # calc lamba for each temp
   # lamb[lamb<1] <-0 # clip non-increasing values to 0
 #-------------------------------------
-# use lambda2_gen, which is based on lambdas, not transition matrices
+# use lambda2_gen, which is based on little_r, not transition matrices
   lamb <- lam2_gen(x=exp_tmp,
   								 y=emp_lam,
-  								 z=rast[keep]) # calc lamba for each temp
-  lamb[lamb<1] <-0 # clip non-increasing values to 0
+  								 z=rast[keep]) # calc little_r for each temp
+    lamb[lamb<=0] <-NA # clip non-increasing values to 0
 #-------------------------------------
   rast[which(keep)] <- unlist(lamb) # assign lamba back to raster
   return(rast)}, tempRasts=tmean, mc.cores=2)
 lambda_rasts <- do.call(stack, lambda_rasts)
-names(lambda_rasts) <-paste0("medfly", 1:12)
+names(lambda_rasts) <-paste("month", 1:12,sep=" ")
 plot(lambda_rasts)
-
 # calc geometric mean of lambda across the 12 months
-lambdaMap <- calc(lambda_rasts, fun=function(x){prod(x)^(1/length(x))})
-plot(lambdaMap, main="geoMean_of_lambda")
+  # lambdaMap <- calc(lambda_rasts, fun=function(x){prod(exp(x))^(1/length(x))})
+# lambdaMap <- calc(lambda_rasts, fun=function(x){mean(x)})
+lambdaMap <- calc(lambda_rasts, fun=function(x){ifelse(mean(x)>0,mean(x),NA)})
+plot(lambdaMap, main="mean r")

@@ -1,5 +1,5 @@
 ---
-title: "Invasion Demography Draft"
+title: "Forecasting Models For Invasive Species (Draft)"
 author: "Gotelli et al."
 date: "6/23/2020"
 output: pdf_document
@@ -63,4 +63,15 @@ r_{xy} = f(g(xy))
 
 The final step is to estimate r for each pixel in the landscape by combining the calculations from (1) and (2). r can be interpreted as a continuous variable representing the ability of the population to achieve short-term population growth, given the set of environmental conditions at location $(x,y)$. $r$ is an unbounded continuous variable, and the more positive the value of $r$, the higher the growth rate, and presumably the better the environmental conditions are for population growth. A critical value in this continuum is $r = 0$, which is the dividing line between increasing and decreasing population growth rate. Modeling r as a function of environmental variables is an empirical realization of Hutchinson's () definition of the niche: an $n$-dimensional hypervolume describing a combination of variables for which $dN/dt > 0$.
 
+## Case Study #1: Medfly
 
+We begin with the simplest kind of data for demographic modeling: life table analysis of organisms reared im constant laboratory conditions. Vargas et al. (2000) describe a lab study in which cohorts of the Mediterranean fruit fly Ceritata capitata were raised in one of four different temperature treatments. These tephritid flies are native to sub-Saharan Africa, and are serious agricultural pests throughout the world. 
+
+In each of the four treatments in the Vargas et al. (2000) experiments, cohorts of eggs were reared at at different minimum and maximum temperatures, which were maintained on a daily 9h:9h cycle, with 3 hours of ramping between the maximum and minimum. For our analyses, we used the average of the maximum and minimum to characterize the treatment. Vargas et al. (2000) present many different demographic rates from these experiments. We had hoped to model age-specific survivorship and fecundity in each treatment as a function of temperature. However, the raw data for these life table analyses were not presented. Instead, we have used the average population growth rate r, reported in Table 6 of Vargas et al. as the response variable.
+
+Figure 1 shows the relationship between population growth rate and average temperature for each of the 4 treatments. The smooth black curve is the best-fit quadratic regression line. This model predicts a range of viable temperatures for population growth between 16.7 and 33.2$^{\circ}$C. The model predicts maximum population growth rate at a temperature of 24.9$^{\circ}$C, which is close to estimates of an earlier study of maximum net reproductive rate at a constant temperature of 24$^{\circ}$C (Vargas et al. 1997).
+
+
+![](../Graphics/Figure1.jpeg)
+
+Next, we used this prediction function to estimate medfly population growth rate across the continental U.S. Because 
