@@ -74,4 +74,20 @@ Figure 1 shows the relationship between population growth rate and average tempe
 
 ![](../Graphics/Figure1.jpeg)
 
-Next, we used this prediction function to estimate medfly population growth rate across the continental U.S. Because 
+Next, we used this prediction function to estimate medfly population growth rate across the continental U.S. For these predictions, we used current WorldClim values for average monthly temperature. Figure 2 shows the pixels in which r > 0 for each month of the year, based on the prediction function in Figure 1. There is wide spatial variation, with potential medfly distributions covering much of North America in the warmer months, but being absent from the continental U.S. during most of the colder months.
+
+
+![](../Graphics/Figure2.jpeg)
+
+Finally, we assumed for populations to be self-sustaining, they would need to have r > 0 for all 12 months of the year. Figure 3 illustrates this pattern, and predicts that the medfly would be restricted to the southern most tip of the Florida peninsula and the Florida Keys. 
+
+![](../Graphics/Figure3.jpeg)
+
+A less restrictive model (not shown) would consider viable pixels to be those in which the average population growth rate across all 12 months is greater than 0. This model would extend the predicted distribution of the medfly up the Florida peninsula, and down a narrow coastal band of the Gulf Coast. However, this model seems unrealistic because the medfly generation time is < 40d and because the cold months occur consecutively in the winter season, so that population growth that occurred during the summer could not sustain local populations through the cold winter months.
+
+How does this forecast from a demographically-based species distribution compare to the actual distribution of the medfly? Surprisingly well. Medfly populations in the continental U.S. are currently found only in southern Florida, which nicely matches our model predictions. Medfly has also been eradicated from agricultural areas in southern California, but high levels of watering may have made the microclimate there more comparable to the warm moist habitat of southern Florida.
+
+In contrast, MaxEnt, GARP, and other species distribution models based on occurrence records of the medfly in its native range of sub-Saharan Africa and other introduced sites substantially over-estimate its range in North America. These models do not incorporate the acute temperature sensitivity of medfly population growth rate to temperature, and may also be based on occurrences in places that experience less seasonal variability in temperatures than continental North America.
+
+## Case Study #2: *Bromus*
+
