@@ -2,7 +2,9 @@
 title: "Forecasting Models For Invasive Species (Draft)"
 author: "Gotelli et al."
 date: "6/23/2020"
-output: pdf_document
+output:
+  word_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -91,3 +93,32 @@ In contrast, MaxEnt, GARP, and other species distribution models based on occurr
 
 ## Case Study #2: *Bromus*
 
+As an important alternative to traditional life-table experiments, lambda can be estimated from short-term field measurements of abundance. Specifically, if abundance is measured in the same plot in two consecutive time periods, then $log(\frac{N_{t + 1}}{N_{t}}) = r$. If abiotic variables such as temperature or precipitation can be measured at the plot scale, these can be used to generate predictive functions as in Equation 2. 
+
+We illustrate this method with 7 years of annual census data for cheatgrass....(*need full methods section here from Michael and Alden*). The data consist of measurements from experimental snow-fence plots. Although some plots were measured for several consecutive years, there are not enough data for a formal time series analysis. Therefore, we treated each pair of observations on a single plot in two consecutive years as an independent data point.
+
+For covariates, we analyzed the following abiotic variables: growing season snow, growing season rain, growing season total precipitation, growing season degree-days, winter snow, winter rain, winter total precipitation, winter degree days with no snowpack, winter degree days, snow cover.
+
+We analyzed the relationship between these variables and r using linear and quadratic regression models. For most variables, adding a quadratic term substantially improved the r2 and model fit, The quadratic coefficients were usually negative, implying a unimodal peak of population growth at an intermediate level of the variable. 
+
+We also included initial population density as a potential covariate. If population growth is density-dependent rather than exponential, then growth rate should decline with increasing density. In the simplest logistic growth model, the relationship between r and population size is linear. We confirmed this linear relationship for the cheatgrass data, with no significant improvement from adding a quadratic term. For this logistic growth model, maximum population growth rate is achieved as population size approaches 0. The intercept of this model estimates the maximum population growth rate as $r$ = 0.642016 individuals/individual/year, which corresponds to a doubling time of 1.08 years. However, many individual plots had recorded estimates much higher than this. From this model, we can also estimate the carrying capacity of the population as the population size for which $r$ = 0. With a fitted linear slope of -.001326, this estimated $K$ is $0.642016/0.001326 = 484$ individuals per plot.
+
+We selected variables for the final model by evaluating the statistical significance of the individual coefficients, and changes in the adjusted r2, which imposes an AIC penalty on complex models with many parameters. We also tried to include interaction terms between the predictor variables, but these never improved the model fit, so they were not retained.
+
+The final best-fitting model included quadratic functions for snow cover and winter rain, and a linear function for initial density (Figure 4):
+
+![](../Graphics/Composite.jpeg)
+
+The final model with these three variables explained 79.1% of the variance in *r*. All of the model coefficients were statistically significant, except for the quadratic term for snow cover (p = 0.12). 
+
+For purposes of forecasting, we used mapped data layers for snow cover and winter rain. We set population size to a constant of 0, so that population growth rate was estimated for an empty landscape in which new populations might become established. Although density was set as a constant for the forecasts, it is still important to have it in the model so that the coefficients for snow cover and winter rain are properly estimated. 
+
+Figure 5 illustrates a heat map in which r is plotted as a function of snow cover and winter rain. This plot is a visualization of the Hutchinsonian niche, because it indicates combinations of abiotic factors for which $dN/dt > 0$ for colonizing populations.
+
+![](../Graphics/HeatMap.jpeg)
+
+Finally, we apply the model using data layers for contemporary snow cover and winter rain. The model predictions are in line with the current distribution of Bromus... In contrast, more traditional SDMs of Bromus based on species occurrence records suggest that... (*need input from Michael and Alden here)
+
+![](../Graphics/bromusLambdaPrediction.jpeg)
+
+These
