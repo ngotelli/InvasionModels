@@ -1,0 +1,80 @@
+---
+title: "Sparrow initial analyses"
+author: "Nick Gotelli"
+date: "7/7/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+This analysis uses data from Jesse Krause on house sparrow growth rates as a function of precipitation and temperature, compiled from two different studies im Europe. The original compiled data are contained in `House Sparrow Lambda.xlsx`.
+
+
+
+### Build Data Frame
+```{r}
+lambda <- c(0.8,0.78,0.78,2.6,1.75,0.8,1.03,1.2,0.8,0.95,0.78,0.7,0.99,1.1,1.4,1.1,0.8,1.1,0.9,0.97,0.9,0.58,0.82)
+r = log(lambda) # convert to little r
+
+temp <- c(11,9,10,10.5,10.8,9.9,9.5,12,10,10,9.8,10,20.8,20.2,21.5,22.3,19.7,20.2,20.4,21.7,21,21.1,20)
+precip <- c(1,2,3,1,2,2,1,4,4,1,4,4,0.816666667,0.583333333,1.366666667,0.95,1.423333333,1.666666667,2.3,1.82,1.59,3.733333333,2.756666667)
+
+site <- rep(c("Norway","Hungary"),each=12)
+site <- site[-24] #trim last element
+
+df <- data.frame(r,temp,precip,site)
+```
+### Set up Model and Graph Functions
+```{r}
+# Function quad_fit ------------------------------------------------------
+# inputs: response variable, predictor variable
+# outputs: adjusted r2 for linear and quadratic regression models
+
+quad_fit <- function(x,y){
+  M1 <- summary(lm(y~x))
+  M2 <- summary(lm(y~poly(x,2,raw=TRUE)))
+  return(list(M1,M2))
+}
+# -------------------------------------------------------------------------
+# Function quad Graph
+# Function quad_plot ------------------------------------------------------
+# inputs: response variable, predictor variable
+# outputs: ggplot graph with data and fitted line
+
+quad_plot <- function(x,y,z){
+  df <- data.frame(x,y,z)
+  ggplot(data=df,aes(x=x,y=y)) +
+  geom_point(shape=z,size=4) +
+  stat_smooth(method="lm", se=TRUE, fill=NA,
+                formula=y ~ poly(x, 2, raw=TRUE),colour="red") +
+    stat_smooth(method="lm", se=TRUE, fill=NA,
+                formula=y ~ poly(x, 1, raw=TRUE),colour="blue") +
+    ylab("r") +
+    xlab("Environmental Predictor") +
+    theme_bw(base_size = 20)
+}
+```
+
+### Temperature Analysis
+
+```{r}
+quad_fit(x=df$temp,y=df$r)
+quad_plot(x=df$temp,y=df$r,z=df$site)
+```
+
+Although the fitted curve does have an optimal intermediate temperature, neither the linear nor the quadratic model explain any of the variance in r. Statistically, there is no justification for including temperature as a predictor in the final model. However, we could still use it in the model because it does predict a range of viable temperatures between 10.5 and 20.3.
+
+### Precipitation Analysis
+
+```{r}
+quad_fit(x=df$precip,y=df$r)
+quad_plot(x=df$precip,y=df$r,z=df$site)
+```
+
+
+For the precipitation data, the best fitting model is a linear model in which population growth rate declines with increasing rainfall. The quadratic term is non-significant and the coefficient is positive, which means the curve does not have an internal peak. Using the linear model, we get a simple prediction of positive population growth rate when precipitation is less than `r 0.2206/0.1201` mm/day.
+
+Does that seem biologically realistic?
+
+For both variables, an additional question is how we translate these units into measurements at the continental scale. Do we want yearly averages or just averages during the breeding season? For the medfly, we fitted the model to monthly averages because the generation time is so short, then averaged growth rates over the entire year. For *Bromus*, I believe we were using annual measures of precipitation to scale with annual measures of change in population size.
