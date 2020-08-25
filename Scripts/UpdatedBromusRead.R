@@ -7,7 +7,7 @@
 #11 October 2019
 library(tidyverse)
 library(patchwork)
-# source("Scripts/BromusLambdaFunction.R")
+ source("Scripts/BromusLambdaFunction.R")
 # -------------------------------------------------------------------------
 
 # Script for opening and cleaning new Bromus data
