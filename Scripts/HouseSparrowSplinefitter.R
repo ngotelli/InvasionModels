@@ -72,4 +72,13 @@ growthPred.r[] <- growthPred
 pos <- growthPred.r
 pos <- pos>0
 growthPred.r <- growthPred.r*pos
-plot(growthPred.r, col=rgb.tables(1000), main="House sparrow population growth")
+growthPred.r[growthPred.r[]==0] <- NA
+
+# plot
+tiff(filename="/Users/mfitzpatrick/code/InvasionModels/Graphics/houseSparrow.tif",
+     width=6, height=6, units="in", res=300, compression="lzw")
+plot(pos, main="House sparrow population growth", legend=F, col="gray80")
+plot(growthPred.r, col=rgb.tables(1000), 
+     main="House sparrow population growth",
+     add=T)
+dev.off()
