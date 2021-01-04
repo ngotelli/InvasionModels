@@ -34,3 +34,42 @@ r <- r_function(Temperature)
 
 # plot results
 qplot(x=Temperature,y=r)
+
+
+### make maps of predictions
+library(raster)
+library(gtools)
+library(colorRamps)
+
+# march to june
+# max temp
+tmx <- mixedsort(list.files(path="/Volumes/dataSSD/climateData/current/2.5min/maxTemp",
+           pattern="tmax_",
+           full.names = T))[3:6]
+tmx <- stack(tmx)
+tmx <- crop(tmx, extent(-200,-55,10,80))
+
+# min temp
+tmn <- mixedsort(list.files(path="/Volumes/dataSSD/climateData/current/2.5min/minTemp",
+                            pattern="tmin_",
+                            full.names = T))[3:6]
+tmn <- stack(tmn)
+tmn <- crop(tmn, extent(-200,-55,10,80))
+
+# mean temp during breeding season
+tmean_bs <- mean(mean(tmn[[1]], tmx[[1]]), 
+     mean(tmn[[2]], tmx[[2]]), 
+     mean(tmn[[3]], tmx[[3]]),
+     mean(tmn[[4]], tmx[[4]]))/10
+
+# now apply Nick's function
+tmean_bs.vect <- tmean_bs[]
+growthPred <- r_function(tmean_bs.vect)
+
+# make a map
+growthPred.r <- tmean_bs
+growthPred.r[] <- growthPred
+pos <- growthPred.r
+pos <- pos>0
+growthPred.r <- growthPred.r*pos
+plot(growthPred.r, col=rgb.tables(1000), main="House sparrow population growth")
