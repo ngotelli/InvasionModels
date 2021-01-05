@@ -45,18 +45,18 @@ library(colorRamps)
 # max temp
 tmx <- mixedsort(list.files(path="/Volumes/dataSSD/climateData/current/2.5min/maxTemp",
            pattern="tmax_",
-           full.names = T))[3:6]
+           full.names = T))[3:7]
 tmx <- stack(tmx)
 tmx <- crop(tmx, extent(-200,-55,10,80))
 
 # min temp
 tmn <- mixedsort(list.files(path="/Volumes/dataSSD/climateData/current/2.5min/minTemp",
                             pattern="tmin_",
-                            full.names = T))[3:6]
+                            full.names = T))[3:7]
 tmn <- stack(tmn)
 tmn <- crop(tmn, extent(-200,-55,10,80))
 
-# mean temp during breeding season
+# mean temp during breeding season (march-june)
 tmean_bs <- mean(mean(tmn[[1]], tmx[[1]]), 
      mean(tmn[[2]], tmx[[2]]), 
      mean(tmn[[3]], tmx[[3]]),
@@ -75,10 +75,66 @@ growthPred.r <- growthPred.r*pos
 growthPred.r[growthPred.r[]==0] <- NA
 
 # plot
-tiff(filename="/Users/mfitzpatrick/code/InvasionModels/Graphics/houseSparrow.tif",
-     width=6, height=6, units="in", res=300, compression="lzw")
-plot(pos, main="House sparrow population growth", legend=F, col="gray80")
+png(filename="/Users/mfitzpatrick/code/InvasionModels/Graphics/houseSparrow_tempMean.png",
+     width=6, height=6, units="in", res=300)
+plot(pos, main="House sparrow population growth (mean temp)", legend=F, col="gray80")
 plot(growthPred.r, col=rgb.tables(1000), 
-     main="House sparrow population growth",
+     main="House sparrow population growth (mean temp)",
      add=T)
 dev.off()
+
+
+# individual months within the breeding season
+tmean_mar <- mean(tmn[[1]], tmx[[1]])/10
+tmean_apr <- mean(tmn[[2]], tmx[[2]])/10
+tmean_may <- mean(tmn[[3]], tmx[[3]])/10
+tmean_jun <- mean(tmn[[4]], tmx[[4]])/10
+tmean_jul <- mean(tmn[[5]], tmx[[5]])/10
+
+tmean_months <- stack(tmean_mar, tmean_apr, tmean_may,
+                      tmean_jun, tmean_jul)
+
+growthPred_months <- lapply(1:nlayers(tmean_months), function(x, rasts){
+        # now apply Nick's function
+        tmean_month.vect <- rasts[[x]][]
+        growthPred <- r_function(tmean_month.vect)
+        # make a map
+        growthPred.r <- rasts[[x]]
+        growthPred.r[] <- growthPred
+        return(growthPred.r)
+}, rasts = tmean_months)
+
+growthPred_months <- do.call(stack, growthPred_months)
+names(growthPred_months) <- month.name[3:7]
+
+growthPred_months_mean <- mean(growthPred_months)
+pos <- growthPred_months_mean
+pos <- pos>0
+growthPred_months_mean <- growthPred_months_mean*pos
+growthPred_months_mean[growthPred_months_mean[]==0] <- NA
+
+# plot
+png(filename="/Users/mfitzpatrick/code/InvasionModels/Graphics/houseSparrow_monthlyR_Mean.png",
+    width=6, height=6, units="in", res=300)
+plot(pos, main="House sparrow population growth (monthly r mean)", legend=F, col="gray80")
+plot(growthPred.r, col=rgb.tables(1000), 
+     main="House sparrow population growth (monthly r mean)",
+     add=T)
+dev.off()
+
+# plot
+for(i in 1:nlayers(growthPred_months)){
+        pos <- growthPred_months[[i]]
+        pos <- pos>0
+        growthPred_months[[i]] <- growthPred_months[[i]]*pos
+        growthPred_months[[i]][growthPred_months[[i]][]==0] <- NA
+        fName <- paste0("/Users/mfitzpatrick/code/InvasionModels/Graphics/",
+                        "houseSparrow_", month.name[i+2], ".png")
+        png(filename=fName, width=6, height=6, units="in", res=300)
+        plot(pos, main="House sparrow population growth", legend=F, col="gray80")
+        plot(growthPred_months[[i]], col=rgb.tables(1000), 
+             main=paste0("House sparrow population growth: ", 
+                         names(growthPred_months)[i]),
+             add=T)
+        dev.off()
+}
