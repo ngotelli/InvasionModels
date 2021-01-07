@@ -95,17 +95,33 @@ tmean_months <- stack(tmean_mar, tmean_apr, tmean_may,
                       tmean_jun, tmean_jul)
 
 growthPred_months <- lapply(1:nlayers(tmean_months), function(x, rasts){
-        # now apply Nick's function
-        tmean_month.vect <- rasts[[x]][]
-        growthPred <- r_function(tmean_month.vect)
-        # make a map
-        growthPred.r <- rasts[[x]]
-        growthPred.r[] <- growthPred
-        return(growthPred.r)
+    # now apply Nick's function
+    tmean_month.vect <- rasts[[x]][]
+    growthPred <- r_function(tmean_month.vect)
+    # make a map
+    growthPred.r <- rasts[[x]]
+    growthPred.r[] <- growthPred
+    growthPred.r[growthPred.r[]<0] <- 0
+    return(growthPred.r)
 }, rasts = tmean_months)
 
 growthPred_months <- do.call(stack, growthPred_months)
 names(growthPred_months) <- month.name[3:7]
+
+growthPred_months_mean_mar_june <- mean(growthPred_months[[1:4]])
+pos <- growthPred_months_mean_mar_june
+pos <- pos>0
+growthPred_months_mean_mar_june <- growthPred_months_mean_mar_june*pos
+growthPred_months_mean_mar_june[growthPred_months_mean_mar_june[]==0] <- NA
+
+# plot
+png(filename="/Users/mfitzpatrick/code/InvasionModels/Graphics/houseSparrow_monthlyR_Mean_mar_jun.png",
+    width=6, height=6, units="in", res=300)
+plot(pos, main="Population growth (monthly r mean: Mar-June)", legend=F, col="gray80")
+plot(growthPred_months_mean_mar_june, col=rgb.tables(1000), 
+     main="Population growth (monthly r mean: Mar-June)",
+     add=T)
+dev.off()
 
 growthPred_months_mean <- mean(growthPred_months)
 pos <- growthPred_months_mean
@@ -114,11 +130,11 @@ growthPred_months_mean <- growthPred_months_mean*pos
 growthPred_months_mean[growthPred_months_mean[]==0] <- NA
 
 # plot
-png(filename="/Users/mfitzpatrick/code/InvasionModels/Graphics/houseSparrow_monthlyR_Mean.png",
+png(filename="/Users/mfitzpatrick/code/InvasionModels/Graphics/houseSparrow_monthlyR_Mean_mar_july.png",
     width=6, height=6, units="in", res=300)
-plot(pos, main="House sparrow population growth (monthly r mean)", legend=F, col="gray80")
-plot(growthPred.r, col=rgb.tables(1000), 
-     main="House sparrow population growth (monthly r mean)",
+plot(pos, main="Population growth (monthly r mean: Mar-July)", legend=F, col="gray80")
+plot(growthPred_months_mean, col=rgb.tables(1000), 
+     main="Population growth (monthly r mean: Mar-July)",
      add=T)
 dev.off()
 
