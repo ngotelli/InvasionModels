@@ -22,7 +22,7 @@ library(stats)
 # y = estimated r at each temperature
 r_function <- splinefun(x=c(8,21,28),
           y=c(0,0.6,0),
-          method="fmm")
+          method="monoH.FC")
 
 # create a vector of temperatures
 Temperature <- seq(0,30)
