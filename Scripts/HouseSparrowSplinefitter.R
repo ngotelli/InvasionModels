@@ -43,14 +43,14 @@ library(colorRamps)
 
 # march to june
 # max temp
-tmx <- mixedsort(list.files(path="/Volumes/dataSSD/climateData/current/2.5min/maxTemp",
+tmx <- mixedsort(list.files(path="/Volumes/generalData/climateData/current/2.5min/wc2.1_2.5m_tmax/",
            pattern="tmax_",
            full.names = T))[3:7]
 tmx <- stack(tmx)
 tmx <- crop(tmx, extent(-200,-55,10,80))
 
 # min temp
-tmn <- mixedsort(list.files(path="/Volumes/dataSSD/climateData/current/2.5min/minTemp",
+tmn <- mixedsort(list.files(path="/Volumes/generalData/climateData/current/2.5min/wc2.1_2.5m_tmin/",
                             pattern="tmin_",
                             full.names = T))[3:7]
 tmn <- stack(tmn)
@@ -60,15 +60,21 @@ tmn <- crop(tmn, extent(-200,-55,10,80))
 tmean_bs <- mean(mean(tmn[[1]], tmx[[1]]), 
      mean(tmn[[2]], tmx[[2]]), 
      mean(tmn[[3]], tmx[[3]]),
-     mean(tmn[[4]], tmx[[4]]))/10
+     mean(tmn[[4]], tmx[[4]]))
+
+# get NA IDs, etc for calcs and mapping
+mask <- tmean_bs
+mask <- mask>-1000
+nas <- which(is.na(mask[]))
+getEm <- which(mask[]==1)
 
 # now apply Nick's function
-tmean_bs.vect <- tmean_bs[]
+tmean_bs.vect <- tmean_bs[getEm]
 growthPred <- r_function(tmean_bs.vect)
 
 # make a map
 growthPred.r <- tmean_bs
-growthPred.r[] <- growthPred
+growthPred.r[getEm] <- growthPred
 pos <- growthPred.r
 pos <- pos>0
 growthPred.r <- growthPred.r*pos
@@ -85,25 +91,25 @@ dev.off()
 
 
 # individual months within the breeding season
-tmean_mar <- mean(tmn[[1]], tmx[[1]])/10
-tmean_apr <- mean(tmn[[2]], tmx[[2]])/10
-tmean_may <- mean(tmn[[3]], tmx[[3]])/10
-tmean_jun <- mean(tmn[[4]], tmx[[4]])/10
-tmean_jul <- mean(tmn[[5]], tmx[[5]])/10
+tmean_mar <- mean(tmn[[1]], tmx[[1]])
+tmean_apr <- mean(tmn[[2]], tmx[[2]])
+tmean_may <- mean(tmn[[3]], tmx[[3]])
+tmean_jun <- mean(tmn[[4]], tmx[[4]])
+tmean_jul <- mean(tmn[[5]], tmx[[5]])
 
 tmean_months <- stack(tmean_mar, tmean_apr, tmean_may,
                       tmean_jun, tmean_jul)
 
-growthPred_months <- lapply(1:nlayers(tmean_months), function(x, rasts){
+growthPred_months <- lapply(1:nlayers(tmean_months), function(x, rasts, datCells){
     # now apply Nick's function
-    tmean_month.vect <- rasts[[x]][]
+    tmean_month.vect <- rasts[[x]][datCells]
     growthPred <- r_function(tmean_month.vect)
     # make a map
     growthPred.r <- rasts[[x]]
-    growthPred.r[] <- growthPred
+    growthPred.r[datCells] <- growthPred
     growthPred.r[growthPred.r[]<0] <- 0
     return(growthPred.r)
-}, rasts = tmean_months)
+}, rasts = tmean_months, datCells = getEm)
 
 growthPred_months <- do.call(stack, growthPred_months)
 names(growthPred_months) <- month.name[3:7]
