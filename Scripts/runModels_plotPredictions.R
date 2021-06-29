@@ -216,7 +216,7 @@ dev.off()
 #NJG
 # 14 May 2019
 
-source("/Users/mfitzpatrick/code/RoL/MatrixFunctions.R")
+source("/Users/mfitzpatrick/code/InvasionModels/Scripts/MatrixFunctions.R")
 #-------------------------------------
 library(popbio)
 library(tidyverse)
@@ -244,24 +244,24 @@ emp_lam <- c(0.051,0.120,0.137,0.092)
 # emp_lam <- exp(emp_lam)
 ################################################################################
 # download monthly worldclim temp, crop to North America, calc mean temp
-# tmin <- getData(name="worldclim",
-#                 var='tmin',
-#                 res=2.5, 
-#                 download=F,
-#                 path=getwd())
-# tmin <- crop(tmin, extent(-170, -40, 20, 80))
+tmin <- getData(name="worldclim",
+                 var='tmin',
+                 res=2.5, 
+                 download=F,
+                 path=getwd())
+ tmin <- crop(tmin, extent(-170, -40, 20, 80))
 # 
-# tmax <- getData(name="worldclim",
-#                 var='tmax',
-#                 res=2.5,
-#                 download=F,
-#                 path=getwd())
-# tmax <- crop(tmax, extent(-170, -40, 20, 80))
-# tmean <- (tmax/10+tmin/10)/2 # rasters are T*10, so div by 20 to get correct scale
-# names(tmean) <- paste0("tmean", 1:12)
-#writeRaster(tmean, "/Volumes/Samsung_T5/Projects/misc/RoL/tmean_12monthStack.tif")
-tmean <- stack("/Volumes/Samsung_T5/Projects/misc/RoL/tmean_12monthStack.tif")
+ tmax <- getData(name="worldclim",
+                var='tmax',
+                res=2.5,
+                download=F,
+                path=getwd())
+tmax <- crop(tmax, extent(-170, -40, 20, 80))
+tmean <- (tmax/10+tmin/10)/2 # rasters are T*10, so div by 20 to get correct scale
 names(tmean) <- paste0("tmean", 1:12)
+#writeRaster(tmean, "/Volumes/Samsung_T5/Projects/misc/RoL/tmean_12monthStack.tif")
+#tmean <- stack("/Volumes/Samsung_T5/Projects/misc/RoL/tmean_12monthStack.tif")
+#names(tmean) <- paste0("tmean", 1:12)
 ################################################################################
 
 ################################################################################
@@ -294,11 +294,11 @@ plot(lambdaMap, main="mean r")
 
 # plot medfly predictions ------------------------------------------------------
 # North America, with political borders
-NAstates <- shapefile("/Volumes/Samsung_T5/Projects/plantGenome/NA_wIslands_states.shp")
+NAstates <- shapefile("/Volumes/dataSSD/Projects/plantGenome/NA_wIslands_states.shp")
 NAstates.simp <- gSimplify(NAstates, 0.01)
 
 # 12 month mean
-tiff(filename="medflyMean.tif", width=12, height=12, units="in", res=300, 
+tiff(filename="medflyMean_Florida.tif", width=12, height=12, units="in", res=300, 
      compression="lzw", type="cairo")
 plot(NAstates.simp, col="gray50", bg=NA, border="grey60", 
      xlim=c(-85, -75), ylim=c(24, 31))
@@ -313,7 +313,7 @@ dev.off()
 for(m in 1:12){
   print(array(month.name)[m])
   fName <- paste0(array(month.name)[m], "_medfly.tif")
-  tiff(filename=fName, width=12, height=8, units="in", res=300, 
+  tiff(filename=fName, width=12, height=12, units="in", res=300, 
        compression="lzw", type="cairo")
   plot(lambda_rasts[[m]], col="white", legend=F,
        xlim=c(-170, -50), ylim=c(19, 70), axes=F, box=F,
@@ -325,7 +325,7 @@ for(m in 1:12){
   if(m==1){
   plot(lambda_rasts[[m]], legend.only=T, col=rgb.tables(1000), legend.width=2,
        legend.args=list(side=3, text='lambda', cex=3, font=2),
-       smallplot=c(0.2,0.24, 0.16,0.59),
+       smallplot=c(0.2, 0.24, 0.14, 0.49),
        axis.args=list(cex.axis=2.5))
   }
   box()
