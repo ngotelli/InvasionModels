@@ -12,6 +12,10 @@
 # The maximum r is set at 0.50, slightly higher than the largest value I calculated from the spreadsheets that Jesse sent. However, for this particular model, the actual value is arbitrary and does not affect the appearance of the map, just the scaling. The optimum temperature does affect the appearance of the contours, but the most important issue is the max and min values because these determine the areas where dN/dt > 0.
 
 # 04 Oct 2020
+
+# 02 July 2021 - updated spline function to include 
+# new limits after discussion with Jesse
+
 # NJG
 # --------------------------------------
 library(tidyverse)
@@ -20,7 +24,10 @@ library(stats)
 # create spline function
 # x = min, optimal, and max temperature (C)
 # y = estimated r at each temperature
-r_function <- splinefun(x=c(8,21,28),
+
+# this function updated with new values from Jesse 2 July 2021
+#r_function <- splinefun(x=c(8,21,28),
+r_function <- splinefun(x=c(8,17,24),
           y=c(0,0.6,0),
           method="monoH.FC")
 

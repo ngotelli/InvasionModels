@@ -23,7 +23,13 @@ library(stats)
 # create spline function
 # x = min, optimal, and max temperature (C)
 # y = estimated r at each temperature
-r_function <- splinefun(x=c(8,21,28),
+
+# original limits used from Jesse
+# r_function <- splinefun(x=c(8,21,28),
+
+# Updated limits from Jesse (2 July 2021)
+# to better get performance at extremes
+r_function <- splinefun(x=c(8,17,24),
           y=c(0,0.6,0),
           method="monoH.FC")
 
@@ -49,7 +55,7 @@ Sparrow_Plot <- ggplot(d_frame) +
                 ylim(c(-0.1,0.65)) + 
                 labs(x = expression("Temperature " ( degree*C))) +
                 annotate(geom="point",
-                         x=c(8,21,28),
+                         x=c(8,17,24),
                          y=c(0,0.6,0),
                          size=5,
                          shape=21,
