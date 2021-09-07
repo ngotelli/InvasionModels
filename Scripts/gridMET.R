@@ -5,6 +5,7 @@ years <- 1981:2000
 tmps <- c("tmmn", "tmmx")
 ncs <- list.files(path="/Volumes/generalData/climateData/current/gridMET", pattern=".nc", full.names = T)
 
+# caclulate extreme highs / lows
 for(y in 1:length(years)){
   year <- years[y]
   yearDates <-  seq.Date(from=as.Date(paste0(year, "/1/1")), to=as.Date(paste0(year, "/12/31")), "day")
@@ -51,4 +52,29 @@ for(y in 1:length(years)){
   }
 }
 
-      
+# calculate monthly means across climatology period
+tmps <- c("tmmn", "tmmx")
+tempRasts <- list.files(path="/Volumes/Projects/activeProjects/misc/RoL/", 
+                        pattern=".tif", full.names = T)
+
+for(t in 1:2){
+  tmp <- tmps[t]
+  for(m in 1:12){
+    if(m>9){
+      mn <- as.character(m)
+    } else{
+      mn <- as.character(paste0(0, m))
+    }
+    print(paste(mn, tmp))
+    
+    mnRasts <- tempRasts[grep(tmp, tempRasts)]
+    mnRasts <- tempRasts[grep(paste0("_", mn, ".tif"), mnRasts)]
+    mnRast <- stack(mnRasts)
+    mnRast <- calc(mnRast, mean)
+    
+    writeRaster(mnRast, 
+                paste0("/Volumes/Projects/activeProjects/misc/RoL/monthlyMeans/",
+                       "ext_", tmp, "_", mn, ".tif"),
+                overwrite=TRUE)
+  }
+}
