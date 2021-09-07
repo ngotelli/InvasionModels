@@ -332,3 +332,23 @@ for(m in 1:12){
   dev.off()
 }
 
+# House sparrow ------------------------------------------
+library(raster)
+
+exTmpRasts <- list.files(path="/Volumes/Projects/activeProjects/misc/RoL/monthlyMeans/", 
+                         pattern=".tif", full.names = T)
+
+# Updated limits from Jesse (2 July 2021)
+# to better get performance at extremes
+r_function <- splinefun(x=c(8,17,24),
+                        y=c(0,0.6,0),
+                        method="monoH.FC")
+
+rrr <- raster(exTmpRasts[1])
+rrr <- na.omit(values(rrr))
+r <- r_function(rrr)
+ggg <- calc(rrr, fun=r_function)
+# get estimated growth rates from function
+# Matt will use this for creating the map
+r <- r_function(Temperature)
+
