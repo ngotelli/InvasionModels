@@ -24,7 +24,7 @@ for(y in 1:length(years)){
       monthDates <- yearDates[grep(paste0(year, "-", mn), yearDates)]
       dateIndex <- which(yearDates %in% monthDates)
       
-      print(paste(year, m, tmp))
+      print(paste(year, mn, tmp))
       
       climMonth <- climYear[[dateIndex]]
       #climMonth[which(is.na(climMonth[]))] <- NA
@@ -44,7 +44,7 @@ for(y in 1:length(years)){
       #return(extTempMonth)
       writeRaster(extTempMonth, 
       paste0("/Volumes/Projects/activeProjects/misc/RoL/",
-             "ext_", tmp, "_", year, "_", m, ".tif"),
+             "ext_", tmp, "_", year, "_", mn, ".tif"),
       overwrite=TRUE)
     #}, mc.cores=12, year=year, yearDates=yearDates, rastStack=climYear, tmp=tmp)
     }
