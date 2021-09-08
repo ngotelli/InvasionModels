@@ -68,7 +68,7 @@ for(t in 1:2){
     print(paste(mn, tmp))
     
     mnRasts <- tempRasts[grep(tmp, tempRasts)]
-    mnRasts <- tempRasts[grep(paste0("_", mn, ".tif"), mnRasts)]
+    mnRasts <- mnRasts[grep(paste0("_", mn, ".tif"), mnRasts)]
     mnRast <- stack(mnRasts)
     mnRast <- calc(mnRast, mean)
     
