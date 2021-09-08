@@ -344,11 +344,52 @@ r_function <- splinefun(x=c(8,17,24),
                         y=c(0,0.6,0),
                         method="monoH.FC")
 
-rrr <- raster(exTmpRasts[1])
-rrr <- na.omit(values(rrr))
-r <- r_function(rrr)
-ggg <- calc(rrr, fun=r_function)
-# get estimated growth rates from function
-# Matt will use this for creating the map
-r <- r_function(Temperature)
+# calculate monthly means across climatology period
+tmps <- c("tmmn", "tmmx")
 
+for(m in 1:12){
+  if(m>9){
+    mn <- as.character(m)
+  } else{
+    mn <- as.character(paste0(0, m))
+  }
+  mask <- raster(exTmpRasts[1])
+  mnRasts <- stack(exTmpRasts[grep(paste0("_", mn, ".tif"), exTmpRasts)])
+  # rStack <- stack()
+  # for(rast in 1:2){
+  #   vals <- na.omit(values(mnRasts[[rast]]))
+  #   r <- r_function(vals)
+  #   mask[which(!is.na(mask[]))] <- r
+  #   rStack <- stack(rStack, mask)
+  # }
+    
+    
+  tempR <- lapply(1:2, function(x, rasts=mnRasts, rrr=mask){
+    vals <- na.omit(values(rasts[[x]]))
+    r <- r_function(vals)
+    rrr[which(!is.na(rrr[]))] <- r
+    return(rrr)})
+  
+  for(i in 1:nrow(vals)){
+    print(i)
+    if(sum(vals[i,]<0)>0) {ccc <- 0}
+    if(sum(vals[i,]>0)==2) {ccc <- mean(x)}
+  }
+  
+  tempR <- stack(tempR)
+  vals <- data.frame(na.omit(values(tempR)))
+  rVals <- apply(vals, 1, function(x){
+    if(sum(x<0)>0) {ccc <- 0}
+    if(sum(x>0)==2) {ccc <- mean(x)}
+    return(ccc)
+  })
+  
+  mask[which(!is.na(mask[]))] <- rVals
+  
+  writeRaster(mask, 
+              paste0("/Volumes/Projects/activeProjects/misc/RoL/sparrowMaps/",
+                     "r_", mn, ".tif"),
+              overwrite=TRUE)
+}
+
+rrr <- list.files("/Volumes/Projects/activeProjects/misc/RoL/sparrowMaps/")
