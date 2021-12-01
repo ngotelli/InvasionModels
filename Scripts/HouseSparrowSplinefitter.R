@@ -83,17 +83,27 @@ growthPred <- r_function(tmean_bs.vect)
 growthPred.r <- tmean_bs
 growthPred.r[getEm] <- growthPred
 pos <- growthPred.r
+neg <- pos<0
+neg[neg[]==0] <- NA
 pos <- pos>0
 growthPred.r <- growthPred.r*pos
 growthPred.r[growthPred.r[]==0] <- NA
 
+
+tooCold <- tmean_bs<=8 & neg==1
+tooCold[tooCold[]==0] <- NA
+
+tooWarm <- tmean_bs>=24 & neg==1
+tooWarm[tooWarm[]==0] <- NA
+
 # plot
-png(filename="/Users/mfitzpatrick/code/InvasionModels/Graphics/houseSparrow_tempMean.png",
+png(filename="/Users/mfitzpatrick/code/InvasionModels/Graphics/houseSparrow_tempMean_TEST.png",
      width=6, height=6, units="in", res=300)
-plot(pos, main="House sparrow population growth (mean temp)", legend=F, col="gray80")
-plot(growthPred.r, col=rgb.tables(1000), 
-     main="House sparrow population growth (mean temp)",
-     add=T)
+#plot(pos, main="House sparrow population growth (mean temp)", legend=F, col="gray80")
+plot(growthPred.r, col=viridis(1000, direction = -1), 
+     main="House sparrow population growth (mean temp)")
+plot(tooCold, col="skyblue", legend=F, add=T)
+plot(tooWarm, col="salmon", legend=F, add=T)
 dev.off()
 
 
