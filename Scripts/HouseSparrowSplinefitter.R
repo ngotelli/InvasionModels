@@ -47,6 +47,7 @@ qplot(x=Temperature,y=r)
 library(raster)
 library(gtools)
 library(colorRamps)
+library(viridisLite)
 
 # march to june
 # max temp
@@ -102,8 +103,8 @@ png(filename="/Users/mfitzpatrick/code/InvasionModels/Graphics/houseSparrow_temp
 #plot(pos, main="House sparrow population growth (mean temp)", legend=F, col="gray80")
 plot(growthPred.r, col=viridis(1000, direction = -1), 
      main="House sparrow population growth (mean temp)")
-plot(tooCold, col="skyblue", legend=F, add=T)
-plot(tooWarm, col="salmon", legend=F, add=T)
+plot(tooCold, col=rgb(0,181/255,226/255,0.25), legend=F, add=T)
+plot(tooWarm, col=rgb(255/255,134/255,116/255, 0.5), legend=F, add=T)
 dev.off()
 
 
