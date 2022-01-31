@@ -17,6 +17,7 @@ con_temp <- 1:40
 emp_lam <- c(0.051,0.120,0.137,0.092)
 emp_lam <- exp(emp_lam)
 
+
 # run model
 z2 <-lam2_gen(x=exp_tmp,y=emp_lam,z=con_temp)
 str(z2)

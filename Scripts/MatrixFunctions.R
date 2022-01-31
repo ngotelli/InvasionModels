@@ -31,8 +31,8 @@
 #-------------------------------------
 library(popbio)
 library(tidyverse)
-library(raster)
-library(parallel)
+# library(raster)
+# library(parallel)
 #-------------------------------------
 #-------------------------------------
 # FUNCTION est_trans
