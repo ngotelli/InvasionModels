@@ -4,7 +4,9 @@ library(mapdata)
 # medfly
 medfly <- gbif(genus="Ceratitis", 
                species="capitata", 
-               geo=T)
+               geo=T, 
+               removeZeros=T,
+               ext=extent(c(-180, -30, 0, 90)))
 
 medfly <- subset(medfly, country %in% c("United States", "Canada", "Mexico"))
 
@@ -13,10 +15,12 @@ map('worldHires',  c('USA', 'Canada', 'Mexico'), xlim=c(-180,-30))
 points(medfly$lon, medfly$lat, pch=20, col=rgb(0,0,1,0.5))
 
 
-# cheatgrass
+# cheat grass
 cheatgrass <- gbif(genus="Bromus", 
                species="tectorum", 
-               geo=T)
+               geo=T,
+               removeZeros=T,
+               ext=extent(c(-180, -30, 0, 90)))
 
 cheatgrass <- subset(cheatgrass, country %in% c("United States", "Canada", "Mexico"))
 
@@ -26,11 +30,12 @@ points(cheatgrass$lon, cheatgrass$lat, pch=20, col=rgb(0,0,1,0.5))
 
 
 
-
-# housesparrow
+# house sparrow
 housesparrow <- gbif(genus="Passer", 
                    species="domesticus", 
-                   geo=T)
+                   geo=T,
+                   removeZeros=T,
+                   ext=extent(c(-180, -30, 0, 90)))
 
 housesparrow <- subset(housesparrow, country %in% c("United States", "Canada", "Mexico"))
 
