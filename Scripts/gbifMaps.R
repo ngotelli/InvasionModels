@@ -15,10 +15,11 @@ library(mapdata)
 # saveRDS(medfly,file="DataObjects/medfly.RDS")
 medfly <- readRDS(file="DataObjects/medfly.RDS")
 # plot
-map('worldHires',  c('USA', 'Canada', 'Mexico'), xlim=c(-180,-30))
+map('worldHires',  c('USA', 'Canada', 'Mexico'), xlim=c(-87,-78),ylim=c(22,31))
 points(medfly$lon, medfly$lat, pch=20, col=rgb(0,0,1,0.5))
 
-
+map('worldHires',  c('USA', 'Canada', 'Mexico'), xlim=c(-130,-51),ylim=c(22,55))
+points(medfly$lon, medfly$lat, pch=20, col=rgb(0,0,1,0.5))
 # cheatgrass
 # cheatgrass <- gbif(genus="Bromus", 
 #                species="tectorum", 
