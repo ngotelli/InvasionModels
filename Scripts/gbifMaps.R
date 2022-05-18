@@ -18,7 +18,7 @@ medfly <- readRDS(file="DataObjects/medfly.RDS")
 map('worldHires',  c('USA', 'Canada', 'Mexico'), xlim=c(-87,-78),ylim=c(22,31))
 points(medfly$lon, medfly$lat, pch=20, col=rgb(0,0,1,0.5))
 
-map('worldHires',  c('USA', 'Canada', 'Mexico'), xlim=c(-130,-51),ylim=c(22,55))
+map('worldHires',  c('USA', 'Canada', 'Mexico'), xlim=c(-150,-51),ylim=c(22,55))
 points(medfly$lon, medfly$lat, pch=20, col=rgb(0,0,1,0.5))
 # cheatgrass
 # cheatgrass <- gbif(genus="Bromus", 
