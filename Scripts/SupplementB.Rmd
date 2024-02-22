@@ -1,0 +1,275 @@
+---
+title: 'Supplement B'
+author: "Bromus predictor variable analysis"
+date: "Gotelli et al. 22 Feb 2024"
+output:
+  pdf_document: default
+  html_document:
+    highlight: tango
+    theme: cerulean
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+# Preliminaries -----------------------------------------------------------
+library(tidyverse)
+
+# Get input data ----------------------------------------------------------
+df <- read.table(file="../CleanData/Bromus_Clean_V2_Aug-28-19.csv",
+                 sep=",",header=TRUE,stringsAsFactors=FALSE)
+df <- df[,-ncol(df)]                 # remove empty final column
+df_clean <- df[complete.cases(df),]  # remove 4 missing lambda
+
+df_preds <- df_clean[,8:18]           # create dataframe of predictor variables
+df_clean$r <- log(df_clean$Lambda)    # create response variable r from log(lambda)
+```
+
+## Initial regression models
+
+
+```{r}
+# Function Model Fit ------------------------------------------------------
+# inputs: response variable, predictor variable
+# outputs: adjusted r2 for linear and quadratic regression models
+
+quad_fit <- function(x=df_clean$Snow.Cover, y=df_clean$r){
+  M1 <- summary(lm(y~x))
+  M2 <- summary(lm(y~poly(x,2,raw=TRUE)))
+  return(c(M1$adj.r.squared,M2$adj.r.squared))
+}
+# -------------------------------------------------------------------------
+# map all predictor variables to quad_fit
+summary_df <- map(df_preds,quad_fit,y=df_clean$r)
+
+# put into a summary data frame and add column labels
+summary_df <- t(bind_rows(summary_df))
+colnames(summary_df) <- c("Linear","Quadratic")
+# -------------------------------------------------------------------------
+```
+
+## First screening of predictor variables
+Each row is a different model with a single predictor variable, and the data frame shows the adjusted r^2^ for each model. The two columns are for a linear model $(y \sim x)$ and a quadratic model $(y \sim x + x^2)$.
+
+```{r}
+print(summary_df)
+```
+
+The quadratic model often fits better than the corresponding linear model (even after imposing a penalty for the additional parameter), so we have good theoretical grounds and empirical support for going with the quadratic models. However, the quadratic model does not provide much improvement for the density dependence, so we will go with the linear model, which corresponds to a plain-vanilla logistic growth equation.
+
+The strongest predictors were:
+
+- snow cover (quadratic r^2^ = 0.759)
+- winter precip snow (quadratic r^2^ = 0.612)
+- winter precip total (quadratic r^2^ = 0.555)
+- winter precip rain (quadratic r^2^ = 0.509)
+- growing season precip rain (quadratic r^2^ = 0.469)
+- initial density (linear r^2^ = 0.368)
+
+
+## Simple linear density dependence model
+
+
+
+```{r}
+# best variables are:
+# snow.cover (6)
+# winter precip snow (7)
+# winter precip total (11)
+# winter precip rain (8)
+# growing season precip rain (3)
+# density (1)
+best_preds <- df_preds[,c(6,7,11,8,3,1)]
+  
+y <- df_clean$r
+x_1 <- best_preds[,1]
+x_2 <- best_preds[,2]
+x_3 <- best_preds[,3]
+x_4 <- best_preds[,4]
+x_5 <- best_preds[,5]
+x_6 <- best_preds[,6]
+
+final_df <- data.frame(r=y,
+                       snow_cover=x_1,
+                       win_precip_snow=x_2,
+                       win_precip_tot=x_3,
+                       win_precip_rain=x_4,
+                       grow_seas_precip_rain=x_5,
+                       density=x_6)
+
+model_dd <- summary(lm(data=final_df,r~density))
+print(model_dd)
+ggplot(data=final_df,aes(x=density,y=r)) +
+  geom_point() +
+  stat_smooth(method="lm", se=TRUE, fill=NA,
+                formula=y ~ poly(x, 1, raw=TRUE),colour="red") 
+```
+
+
+
+## Quadratic model for snow cover
+
+```{r}
+model_snow_cover <- summary(lm(data=final_df,r~poly(snow_cover,2)))
+print(model_snow_cover)
+ggplot(data=final_df,aes(x=snow_cover,y=r)) +
+  geom_point() +
+  stat_smooth(method="lm", se=TRUE, fill=NA,
+                formula=y ~ poly(x, 2, raw=TRUE),colour="red") 
+```
+
+
+## Quadratic model for winter precipitation snow
+
+```{r}
+model_win_precip <- summary(lm(data=final_df,r~poly(win_precip_snow,2)))
+print(model_win_precip)
+ggplot(data=final_df,aes(x=win_precip_snow,y=r)) +
+  geom_point() +
+  stat_smooth(method="lm", se=TRUE, fill=NA,
+                formula=y ~ poly(x, 2, raw=TRUE),colour="red") 
+```
+
+
+## Quadratic model for winter precip total
+
+```{r}
+model_win_precip_tot <- summary(lm(data=final_df,r~poly(win_precip_tot,2)))
+print(model_win_precip_tot)
+ggplot(data=final_df,aes(x=win_precip_tot,y=r)) +
+  geom_point() +
+  stat_smooth(method="lm", se=TRUE, fill=NA,
+                formula=y ~ poly(x, 2, raw=TRUE),colour="red") 
+```
+
+
+## Quadratic model for winter precip rain
+
+```{r}
+model_win_precip_rain <- summary(lm(data=final_df,r~poly(win_precip_rain,2)))
+print(model_win_precip_rain)
+ggplot(data=final_df,aes(x=win_precip_rain,y=r)) +
+  geom_point() +
+  stat_smooth(method="lm", se=TRUE, fill=NA,
+                formula=y ~ poly(x, 2, raw=TRUE),colour="red") 
+```
+
+## Quadratic model for growing season precip rain
+
+```{r}
+model_grow_seas_precip_rain <- summary(lm(data=final_df,r~poly(grow_seas_precip_rain,2)))
+print(model_grow_seas_precip_rain)
+ggplot(data=final_df,aes(x=grow_seas_precip_rain,y=r)) +
+  geom_point() +
+  stat_smooth(method="lm", se=TRUE, fill=NA,
+                formula=y ~ poly(x, 2, raw=TRUE),colour="red") 
+```
+
+
+
+## Saturated regression model with all predictors
+
+```{r}
+model_saturated <- summary(lm(data=final_df,r~poly(snow_cover,2, raw=TRUE) +
+                                              poly(win_precip_snow,2, raw=TRUE) +
+                                              poly(win_precip_tot,2, raw=TRUE) +
+                                              poly(win_precip_rain,2, raw=TRUE) +
+                                              poly(grow_seas_precip_rain,2, raw=TRUE) +
+                                              poly(density,1, raw=TRUE))) 
+                                              
+print(model_saturated)
+```
+
+## Reduced model
+
+
+
+```{r}
+model_reduced <- summary(lm(data=final_df,r~poly(snow_cover,2, raw=TRUE) +
+                                              poly(win_precip_snow,2, raw=TRUE) +
+                                              poly(win_precip_tot,2, raw=TRUE) +
+                                              poly(density,1, raw=TRUE))) 
+                                              
+print(model_reduced)
+```
+
+## Reduced model #2
+
+
+
+```{r}
+model_reduced2 <- lm(data=final_df,r~poly(snow_cover,2, raw=TRUE) +
+                                              poly(win_precip_rain,2, raw=TRUE) +
+                                              poly(density,1, raw=TRUE)) 
+                                              
+print(summary(model_reduced2))
+```
+
+This reduced model has only 3 variables: snow cover, winter rain, and initial density, and accounts for almost 80% of the variation in population growth rate. 
+
+## Reduced model with interaction term
+
+
+
+```{r}
+model_reduced3 <- summary(lm(data=final_df,r~poly(snow_cover,2, raw=TRUE) +
+                                              poly(win_precip_rain,2, raw=TRUE) +
+                                              poly(density,1, raw=TRUE) + 
+                                              snow_cover:win_precip_rain)) 
+                                              
+print(model_reduced3)
+```
+
+
+
+## Prediction function
+
+```{r}
+#-------------------------------------
+# FUNCTION pred_brom_lam
+# predict lambda based on snow cover, precip, and density
+# input: f=fitted model, new= data frame for prediction
+# output: new model coefficient
+pred_brom_lam <- function(new=NULL,f=model_reduced2){
+            if (is.null(new)){
+            	x1 <- runif(10,0,1)
+            	x2 <- runif(10,0,200)
+            	x3 <- rep(0,10)
+            	new<- data.frame(snow_cover=x1,
+            	                win_precip_rain=x2,
+            	                density=x3)}
+           
+	z <- predict(object=f, newdata=new)
+	return(z)
+	
+}
+#-------------------------------------
+```
+
+## Heat map for visualizing lambda values
+
+```{r}
+# construct data frame for sweeping parameter space of snow cover and winter precip
+# density is held constant at N = 0
+# snow cover ranges [0,1]
+# winter precip rain ranges [0,200]
+vec_len <- 30
+snow_vec <- seq(0,1,length.out=vec_len)
+precip_vec <- seq(0,200,length.out=vec_len)
+hutchinson_df <- expand.grid(snow_cover=snow_vec,win_precip_rain=precip_vec)
+hutchinson_df$density <- 0
+
+# this data frame has the structure needed as input for creating a continental map
+str(hutchinson_df)
+
+# now run the pred_brom_lam() function to predict r and bind to input data frame
+heat_map_data <- cbind(hutchinson_df,r=pred_brom_lam(new=hutchinson_df))
+str(heat_map_data)
+
+# construct heat map
+heat_map <- ggplot(data=heat_map_data,mapping=aes(x=snow_cover,y=win_precip_rain,fill=r))
+heat_map + geom_tile() + scale_fill_viridis_c()
+```
