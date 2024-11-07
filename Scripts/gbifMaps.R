@@ -35,7 +35,8 @@ housesparrow <- gbif(genus="Passer",
                    species="domesticus", 
                    geo=T,
                    removeZeros=T,
-                   ext=extent(c(-180, -30, 0, 90)))
+                   args=c("year"==2021),
+                   ext=extent(c(-70, -50, 30, 40)))
 
 housesparrow <- subset(housesparrow, country %in% c("United States", "Canada", "Mexico"))
 
