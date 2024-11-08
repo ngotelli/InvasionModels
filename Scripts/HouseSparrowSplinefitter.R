@@ -108,6 +108,24 @@ plot(tooWarm, col=rgb(255/255,134/255,116/255, 0.5), legend=F, add=T)
 dev.off()
 
 
+# house sparrow
+housesparrow <- read.csv("/Users/mfitzpatrick/code/InvasionModels/Graphics/houseSparrow/houseSparrow_subSample.csv")
+
+#png(filename="/Users/mfitzpatrick/code/InvasionModels/Graphics/gbif_houseSparrow_tempMean.png",
+#    width=6, height=6, units="in", res=300)
+tiff(filename="/Users/mfitzpatrick/code/InvasionModels/Graphics/gbif_houseSparrow.tif", width=12, height=12, units="in", res=300, 
+     compression="lzw", type="cairo")
+#plot(pos, main="House sparrow population growth (mean temp)", legend=F, col="gray80")
+plot(tmean_bs, col="gray50", legend=F)
+#plot(tooCold, col="gray50", add=T, legend=F)
+#plot(tooWarm, col="gray50", add=T, legend=F)
+points(housesparrow$decimalLongitude, 
+       housesparrow$decimalLatitude, pch=20, 
+       col=rgb(0,0,1,0.25), cex=0.5)
+dev.off()
+
+
+
 # individual months within the breeding season
 tmean_mar <- mean(tmn[[1]], tmx[[1]])
 tmean_apr <- mean(tmn[[2]], tmx[[2]])

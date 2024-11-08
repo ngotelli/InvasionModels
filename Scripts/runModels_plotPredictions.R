@@ -107,7 +107,7 @@ pred_brom_lam <- function(new=NULL,f=model_reduced2){
   return(z)}
 
 # load & prep data 
-df <- read.csv("/Users/mfitzpatrick/code/RoL/Bromus_Clean_V3_Oct-08-19.csv", stringsAsFactors=FALSE)
+df <- read.csv("/Users/mfitzpatrick/code/InvasionModels/CleanData/Bromus_Clean_V3_Oct-08-19.csv", stringsAsFactors=FALSE)
 vifstep(df[,9:18])
 df <- df[,-ncol(df)]                 # remove empty final column
 df_clean <- df[complete.cases(df),]  # remove 4 missing lambda
@@ -147,8 +147,8 @@ model_reduced2 <- lm(data=final_df,r~poly(snow_cover,2, raw=TRUE) +
 
 
 # Extract raster data, predict model and map output ----------------------------
-snow_cover <- raster("/Volumes/Samsung_T5/Projects/misc/RoL/sweProportion.tif")
-win_precip_rain <- raster("/Volumes/Samsung_T5/Projects/misc/RoL/winterRain.tif")
+snow_cover <- raster("/Volumes/dataSSD/Projects/activeProjects/misc/RoL/sweProportion.tif")
+win_precip_rain <- raster("/Volumes/dataSSD/Projects/activeProjects/misc/RoL/winterRain.tif")
 
 # deal with NA values in rasters
 NAs <- unique(c(which(is.na(snow_cover[])), which(is.na(win_precip_rain[]))))
@@ -170,11 +170,13 @@ predRast[predRast[]<=0] <- NA
 
 # plot bromus prediction -------------------------------------------------------
 # North America, with political borders
-NAstates <- shapefile("/Volumes/Samsung_T5/Projects/plantGenome/NA_wIslands_states.shp")
-NAstates.simp <- gSimplify(NAstates, 0.01)
+#NAstates <- shapefile("/Volumes/dataSSD/Projects/activeProjects/plantGenome/NA_wIslands_states.shp")
+#NAstates.simp <- gSimplify(NAstates, 0.01)
+#shapefile(NAstates.simp, filename="/Volumes/dataSSD/Projects/activeProjects/plantGenome/NA_wIslands_states_SIMPLE.shp")
+NAstates.simp <- shapefile("/Volumes/dataSSD/Projects/activeProjects/plantGenome/NA_wIslands_states_SIMPLE.shp")
 
 # lakes
-NAlakes <- shapefile("/Volumes/Samsung_T5/Projects/plantGenome/NA_lakes.shp")
+NAlakes <- shapefile("/Volumes/dataSSD/Projects/activeProjects/plantGenome/NA_lakes.shp")
 NAlakes <- NAlakes[12:16,]
 
 tiff(filename="bromusMap.tif", width=12, height=9, units="in", res=300, 
@@ -189,6 +191,28 @@ plot(predRast, legend.only=T, col=rgb.tables(1000), legend.width=2,
      smallplot=c(0.10,0.15, 0.2,0.7))
 box()
 dev.off()
+
+# cheat grass
+cheatgrass <- gbif(genus="Bromus", 
+                   species="tectorum", 
+                   geo=T,
+                   removeZeros=T,
+                   ext=extent(c(-180, -30, 0, 90)))
+
+cheatgrass <- subset(cheatgrass, country %in% c("United States", "Canada", "Mexico"))
+dput(cheatgrass, "cheatGrass.txt")
+tiff(filename="gbif_bromusMap.tif", width=12, height=9, units="in", res=300, 
+     compression="lzw", type="cairo")
+plot(NAstates.simp, col="gray50", bg=NA, border="grey60", 
+     xlim=c(-130, -80), ylim=c(30, 50))
+plot(NAlakes, col="white", border="gray50", add=T)
+#plot(hillShade, col=grey(0:1000/1000), legend=FALSE, add=T)#maxpixels=143520052, add=T)
+#plot(predRast, col=rgb.tables(1000), add=F, legend=F)
+points(cheatgrass$lon, cheatgrass$lat, pch=20, col=rgb(0,0,1,0.5))
+box()
+dev.off()
+
+
 
 
 # MEDFLY -----------------------------------------------------------------------
@@ -247,16 +271,19 @@ emp_lam <- c(0.051,0.120,0.137,0.092)
 tmin <- getData(name="worldclim",
                  var='tmin',
                  res=2.5, 
-                 download=F,
+                 download=T,
                  path=getwd())
- tmin <- crop(tmin, extent(-170, -40, 20, 80))
+ #tmin <- crop(tmin, extent(-170, -40, 20, 80))
+ tmin <- crop(tmin, extent(-85, -75, 22, 31)) 
+ 
 # 
  tmax <- getData(name="worldclim",
                 var='tmax',
                 res=2.5,
-                download=F,
+                download=T,
                 path=getwd())
-tmax <- crop(tmax, extent(-170, -40, 20, 80))
+#tmax <- crop(tmax, extent(-170, -40, 20, 80))
+ tmax <- crop(tmax, extent(-85, -75, 22, 31)) 
 tmean <- (tmax/10+tmin/10)/2 # rasters are T*10, so div by 20 to get correct scale
 names(tmean) <- paste0("tmean", 1:12)
 #writeRaster(tmean, "/Volumes/Samsung_T5/Projects/misc/RoL/tmean_12monthStack.tif")
@@ -294,18 +321,41 @@ plot(lambdaMap, main="mean r")
 
 # plot medfly predictions ------------------------------------------------------
 # North America, with political borders
-NAstates <- shapefile("/Volumes/dataSSD/Projects/plantGenome/NA_wIslands_states.shp")
-NAstates.simp <- gSimplify(NAstates, 0.01)
+#NAstates <- shapefile("/Volumes/dataSSD/Projects/plantGenome/NA_wIslands_states.shp")
+#NAstates.simp <- gSimplify(NAstates, 0.01)
+NAstates.simp <- shapefile("/Volumes/dataSSD/Projects/activeProjects/plantGenome/NA_wIslands_states_SIMPLE.shp")
 
 # 12 month mean
-tiff(filename="medflyMean_Florida.tif", width=12, height=12, units="in", res=300, 
+tiff(filename="medflyMean_Florida.v2.tif", width=12, height=12, units="in", res=300, 
      compression="lzw", type="cairo")
 plot(NAstates.simp, col="gray50", bg=NA, border="grey60", 
      xlim=c(-85, -75), ylim=c(24, 31))
 plot(lambdaMap, col=rgb.tables(1000), add=T, legend=F)
 plot(lambdaMap, legend.only=T, col=rgb.tables(1000), legend.width=2,
-     legend.args=list(side=3, text='lambda'),
+     legend.args=list(side=3, text='r', cex=3),
      smallplot=c(0.83,0.88, 0.5,0.9))
+box()
+dev.off()
+
+# medfly
+medfly <- gbif(genus="Ceratitis", 
+               species="capitata", 
+               geo=T, 
+               removeZeros=T,
+               ext=extent(c(-180, -30, 0, 90)))
+
+medfly <- subset(medfly, country %in% c("United States", "Canada", "Mexico"))
+
+# plot
+tiff(filename="gbif_medflyMean_Florida.tif", width=12, height=12, units="in", res=300, 
+     compression="lzw", type="cairo")
+plot(NAstates.simp, col="gray50", bg=NA, border="grey60", 
+     xlim=c(-85, -75), ylim=c(24, 31))
+#plot(lambdaMap, col=rgb.tables(1000), add=T, legend=F)
+#plot(lambdaMap, legend.only=T, col=rgb.tables(1000), legend.width=2,
+#     legend.args=list(side=3, text='lambda'),
+#     smallplot=c(0.83,0.88, 0.5,0.9))
+points(medfly$lon, medfly$lat, pch=20, cex=2, col=rgb(0,0,1,0.5))
 box()
 dev.off()
 
