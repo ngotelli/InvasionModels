@@ -11,7 +11,7 @@ library(QBMS)
 
 # medfly -----------------------------------------------------------------------
 # download worldclim monthly temperature data
-tavg <- worldclim_global(var='tavg', res=2.5, path="/home/mfitzpatrick/Projects/InvasionModels/")
+#tavg <- worldclim_global(var='tavg', res=2.5, path="/home/mfitzpatrick/Projects/InvasionModels/")
 
 # medfly occurrence data from GBIF
 medfly <- sp_occurrence(genus='Ceratitis', species='capitata',
@@ -20,13 +20,17 @@ medfly <- sp_occurrence(genus='Ceratitis', species='capitata',
   # select columns of interest
   select(species, country, lon, lat, year, month, coordinateUncertaintyInMeters) %>%
   # remove high uncertainty records
-  filter(coordinateUncertaintyInMeters < 5000) %>% # 2.5 arc-min = ~ 5km
-  # remove records before 2000
-  #filter(year >= 1970 & year <= 2000) %>%
+  filter(coordinateUncertaintyInMeters < 4000) %>% # terraclim rez = 4km
+  # remove records outside of terraclim range
+  filter(year >= 1958 & year <= 2023) %>%
   # remove duplicates
   distinct(lon, lat, .keep_all = TRUE) %>%
+  # remove records with NA for month
+  filter(!is.na(month)) %>%
   # convert to sf object
   st_as_sf(coords = c("lon", "lat"), crs = 4326)
+
+dim(medfly)
 
 # ggplot of records 
 ggplot() +
@@ -39,8 +43,8 @@ ggplot() +
 get_terraclimate(
   -1.59,
   -77.71,
-  from = "1958-01-01",
-  to = "1960-01-01",
+  from = "2023-01-01",
+  to = "2024-01-01",
   clim_vars = "tmax",
   month_mask = 1,
   offline = FALSE)

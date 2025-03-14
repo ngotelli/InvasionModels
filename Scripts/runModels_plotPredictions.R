@@ -1,10 +1,11 @@
-library(rgdal)
+#library(rgdal)
 library(caTools)
+#library(terra)
 library(raster)
 library(parallel)
 library(usdm)
 library(daymetr)
-library(rgeos)
+#library(rgeos)
 library(scales)
 library(colorRamps)
 
@@ -167,6 +168,8 @@ pred <- pred_brom_lam(new=newData[,1:3])
 predRast <- snow_cover
 predRast[newData$cell] <- pred
 predRast[predRast[]<=0] <- NA
+writeRaster(predRast, "/Users/mfitzpatrick/Desktop/bromus_lambdaPred.tif", 
+            overwrite=T)
 
 # plot bromus prediction -------------------------------------------------------
 # North America, with political borders
