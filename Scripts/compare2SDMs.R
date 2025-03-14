@@ -62,6 +62,7 @@ write.csv(bromusStackGBIF, "/Users/mfitzpatrick/code/InvasionModels/Output/bromu
 # extract values from the stack @ veg plots
 bromusStackVegPlot <- extract(bromusStack, vegPlot, cells=F, xy=T, ID=F)
 head(bromusStackVegPlot)
+bromusStackVegPlot <- cbind(bromusStackVegPlot, bromusCover=vegPlot$brte_cov)
 write.csv(bromusStackVegPlot, "/Users/mfitzpatrick/code/InvasionModels/Output/bromusStackVegPlot.csv")
 
 par(mfrow=c(3,2))
