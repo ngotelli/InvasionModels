@@ -42,7 +42,8 @@ names(bromusSDM) <- "bromus_SDM"
 bromusRS <- rast("/Users/mfitzpatrick/Desktop/fieryfuture/spatial/kfold_consensus_masked.tif")
 names(bromusRS) <- "bromus_remoteSensing"
 # demographic model prediction from Gotelli et al.
-bromusLambda <- rast("/Users/mfitzpatrick/Desktop/bromus_lambdaPred.tif")
+#bromusLambda <- rast("/Users/mfitzpatrick/Desktop/bromus_lambdaPred.tif") # old version with lambda < 0 ==NA
+bromusLambda <- rast("/Users/mfitzpatrick/Desktop/bromus_lambdaPred.v2.tif") # new version with lambda < 0 == 0
 
 # project rasters to common coord system (EPSG:4326, same as the veg plot & GBIF records)
 bromusSDM <- project(bromusSDM, bromusLambda)

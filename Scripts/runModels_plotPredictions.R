@@ -167,8 +167,8 @@ names(newData)[1:2] <- c("snow_cover", "win_precip_rain")
 pred <- pred_brom_lam(new=newData[,1:3])
 predRast <- snow_cover
 predRast[newData$cell] <- pred
-predRast[predRast[]<=0] <- NA
-writeRaster(predRast, "/Users/mfitzpatrick/Desktop/bromus_lambdaPred.tif", 
+predRast[predRast[]<=0] <- 0#NA
+writeRaster(predRast, "/Users/mfitzpatrick/Desktop/bromus_lambdaPred.v2.tif", 
             overwrite=T)
 
 # plot bromus prediction -------------------------------------------------------
