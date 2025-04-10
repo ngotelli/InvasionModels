@@ -97,6 +97,40 @@ hist(bromusStackVegPlot$bromus_remoteSensing, main="RS @ veg plots")
 hist(bromusStackGBIF$bromus_remoteSensing, main="RS @ GBIF")
 
 
+library(data.table)
+library(sf)
+library(terra)
+
+# use fread to load .txt file with tab delimited data
+data <- fread("/Users/mfitzpatrick/Downloads/ebd_houspa_relFeb-2025.txt", sep = "\t", na.strings = "?", header = TRUE)
+
+
+data.sp <- data.frame(data) %>%
+  # select columns of interest
+  dplyr::select(LONGITUDE, LATITUDE) %>%
+  # remove plots with zero cover
+  #filter(brte_cov > 0) %>%
+  # convert to sf object
+  st_as_sf(coords = c("LONGITUDE", "LATITUDE"), crs = 4326)
+
+
+# need to create the raster by running HouseSparrowSplinefitter.R scripts
+rast <- rast(growthPred.r)
+ddd <- terra::extract(rast, data.sp, cells=TRUE, xy=TRUE)
+ddd.x <- ddd[complete.cases(ddd),]
+
+# remove duplicates
+ddd.x <- ddd.x[!duplicated(ddd.x[, "cell"]), ]
+
+# remove column 1
+ddd.x <- ddd.x[, -c(1,3)]
+
+# save as csv
+write.csv(ddd.x, file = "/Users/mfitzpatrick/code/InvasionModels/HouseSparrowGrowthPredictions_at_eBird_points.csv", row.names = FALSE)
+
+
+
+
 
 # crop to the same extent
 bromusLambda <- (bromusSDM>=0) * bromusLambda
