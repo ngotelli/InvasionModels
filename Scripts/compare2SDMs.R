@@ -125,8 +125,9 @@ ddd.x <- ddd.x[!duplicated(ddd.x[, "cell"]), ]
 # remove column 1
 ddd.x <- ddd.x[, -c(1,3)]
 
-# save as csv
-write.csv(ddd.x, file = "/Users/mfitzpatrick/code/InvasionModels/HouseSparrowGrowthPredictions_at_eBird_points.csv", row.names = FALSE)
+# save as RDS
+saveRDS(ddd.x, file = "/Users/mfitzpatrick/code/InvasionModels/HouseSparrowGrowthPredictions_at_eBird_points.rds")
+#write.csv(ddd.x, file = "/Users/mfitzpatrick/code/InvasionModels/HouseSparrowGrowthPredictions_at_eBird_points.csv", row.names = FALSE)
 
 
 
