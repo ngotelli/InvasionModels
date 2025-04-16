@@ -148,8 +148,10 @@ model_reduced2 <- lm(data=final_df,r~poly(snow_cover,2, raw=TRUE) +
 
 
 # Extract raster data, predict model and map output ----------------------------
-snow_cover <- raster("/Volumes/dataSSD/Projects/activeProjects/misc/RoL/sweProportion.tif")
-win_precip_rain <- raster("/Volumes/dataSSD/Projects/activeProjects/misc/RoL/winterRain.tif")
+snow_cover <- raster("/Volumes/localDrobo/Projects/activeProjects/misc/RoL/sweProportion.tif")
+#snow_cover <- raster("/Volumes/dataSSD/Projects/activeProjects/misc/RoL/sweProportion.tif")
+#win_precip_rain <- raster("/Volumes/dataSSD/Projects/activeProjects/misc/RoL/winterRain.tif")
+win_precip_rain <- raster("/Volumes/localDrobo/Projects/activeProjects/misc/RoL/winterRain.tif")
 
 # deal with NA values in rasters
 NAs <- unique(c(which(is.na(snow_cover[])), which(is.na(win_precip_rain[]))))
