@@ -12,6 +12,7 @@ library(ggplot2)
 #                header=TRUE,sep=",")
 # saveRDS(z,"HouseSparrow.rds")
 
+# house sparrow plots
 z <- readRDS("Output/HouseSparrowGrowthPredictions_at_eBird_points.rds")
 ggplot(data=z,aes(x=x, y=y)) +
   geom_raster(aes(fill = layer)) +
@@ -35,3 +36,19 @@ ggplot(data=z,aes(x=x, y=y)) +
   theme_grey(base_size=18) + 
   #scale_fill_gradientn(colors = hcl.colors(10, "Viridis"))
   scale_fill_discrete(c("coral","cornflower blue"))
+
+# Run outside of repo to create data object
+ # z<- read.table(file="../../UTF-8BromusStackVegPlot.csv",
+ #                header=TRUE,sep=",")
+ # saveRDS(z,"DataObjects/BromusStackVegPlot.rds")
+z <- readRDS("DataObjects/BromusStackVegPlot.rds")
+z <- na.omit(z)
+ # z <-z[z$bromus_lambdaPred.v2>0,]
+ggplot(data=z,aes(x=x, y=y)) +
+  geom_raster(aes(fill = bromus_lambdaPred.v2)) +
+   coord_fixed() +  # Maintain aspect ratio
+   # xlim(-108,-105) +
+   # ylim(43,46) +
+  labs(x="",y="") +
+  theme_grey(base_size=18) + 
+  scale_fill_gradientn(colors = hcl.colors(10, "Viridis"))
