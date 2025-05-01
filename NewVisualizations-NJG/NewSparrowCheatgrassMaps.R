@@ -43,12 +43,13 @@ ggplot(data=z,aes(x=x, y=y)) +
  # saveRDS(z,"DataObjects/BromusStackVegPlot.rds")
 z <- readRDS("DataObjects/BromusStackVegPlot.rds")
 z <- na.omit(z)
+z$status <- "positive"
+z$status[z$bromus_lambdaPred.v2<=1.0] <- "negative"
  # z <-z[z$bromus_lambdaPred.v2>0,]
-ggplot(data=z,aes(x=x, y=y)) +
-  geom_raster(aes(fill = bromus_lambdaPred.v2)) +
+ggplot(data=z,aes(x=x, y=y,color=status)) +
+  geom_point(size=0.65) +
    coord_fixed() +  # Maintain aspect ratio
-   # xlim(-108,-105) +
-   # ylim(43,46) +
   labs(x="",y="") +
-  theme_grey(base_size=18) + 
-  scale_fill_gradientn(colors = hcl.colors(10, "Viridis"))
+  theme_grey(base_size=16) + 
+  
+  scale_fill_discrete(c("coral","cornflower blue"))
