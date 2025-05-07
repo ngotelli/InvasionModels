@@ -108,7 +108,8 @@ pred_brom_lam <- function(new=NULL,f=model_reduced2){
   return(z)}
 
 # load & prep data 
-df <- read.csv("/Users/mfitzpatrick/code/InvasionModels/CleanData/Bromus_Clean_V3_Oct-08-19.csv", stringsAsFactors=FALSE)
+# df <- read.csv("/Users/mfitzpatrick/code/InvasionModels/CleanData/Bromus_Clean_V3_Oct-08-19.csv", stringsAsFactors=FALSE)
+df <- read.csv("CleanData/Bromus_Clean_V3_Oct-08-19.csv", stringsAsFactors=FALSE)
 vifstep(df[,9:18])
 df <- df[,-ncol(df)]                 # remove empty final column
 df_clean <- df[complete.cases(df),]  # remove 4 missing lambda
@@ -245,7 +246,8 @@ dev.off()
 #NJG
 # 14 May 2019
 
-source("/Users/mfitzpatrick/code/InvasionModels/Scripts/MatrixFunctions.R")
+# source("/Users/mfitzpatrick/code/InvasionModels/Scripts/MatrixFunctions.R")
+source("Scripts/MatrixFunctions.R")
 #-------------------------------------
 library(popbio)
 library(tidyverse)
