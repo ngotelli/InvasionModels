@@ -97,15 +97,31 @@ tooCold[tooCold[]==0] <- NA
 tooWarm <- tmean_bs>=24 & neg==1
 tooWarm[tooWarm[]==0] <- NA
 
-# plot
-png(filename="/Users/mfitzpatrick/code/InvasionModels/Graphics/houseSparrow_tempMean_TEST.png",
-     width=6, height=6, units="in", res=300)
-#plot(pos, main="House sparrow population growth (mean temp)", legend=F, col="gray80")
-plot(growthPred.r, col=viridis(1000, direction = -1), 
-     main="House sparrow population growth (mean temp)")
-plot(tooCold, col=rgb(0,181/255,226/255,0.25), legend=F, add=T)
-plot(tooWarm, col=rgb(255/255,134/255,116/255, 0.5), legend=F, add=T)
+
+tiff(filename="/Users/mfitzpatrick/code/InvasionModels/Graphics/revision/FIGURE5a_houseSparrow.tif", 
+     width=12, height=12, units="in", res=300, 
+     compression="lzw", type="cairo")
+plot(NAstates.simp, col="gray80", bg=NA, border="grey80", 
+     xlim=c(-130, -80), ylim=c(10, 70))
+plot(growthPred.r, col=rgb.tables(1000), add=T, legend=F)
+plot(tooCold, col="gray80", legend=F, add=T)
+plot(tooWarm, col="black", legend=F, add=T)
+plot(growthPred.r, legend.only=T, col=rgb.tables(1000), legend.width=2,
+     legend.args=list(side=3, text='r', cex=3),
+     axis.args = list(cex.axis = 1.5), 
+     smallplot=c(0.1,0.15, 0.1,0.5))
+box()
 dev.off()
+
+# plot
+# png(filename="/Users/mfitzpatrick/code/InvasionModels/Graphics/houseSparrow_tempMean_TEST.png",
+#      width=6, height=6, units="in", res=300)
+# #plot(pos, main="House sparrow population growth (mean temp)", legend=F, col="gray80")
+# plot(growthPred.r, col=viridis(1000, direction = -1), 
+#      main="House sparrow population growth (mean temp)")
+# plot(tooCold, col=rgb(0,181/255,226/255,0.25), legend=F, add=T)
+# plot(tooWarm, col=rgb(255/255,134/255,116/255, 0.5), legend=F, add=T)
+# dev.off()
 
 
 # house sparrow

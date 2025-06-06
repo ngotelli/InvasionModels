@@ -8,6 +8,7 @@ library(daymetr)
 #library(rgeos)
 library(scales)
 library(colorRamps)
+library(geodata)
 
 
 # BROMUS -----------------------------------------------------------------------
@@ -149,10 +150,10 @@ model_reduced2 <- lm(data=final_df,r~poly(snow_cover,2, raw=TRUE) +
 
 
 # Extract raster data, predict model and map output ----------------------------
-snow_cover <- raster("/Volumes/localDrobo/Projects/activeProjects/misc/RoL/sweProportion.tif")
+snow_cover <- raster("/Volumes/Projects/activeProjects/misc/RoL/sweProportion.tif")
 #snow_cover <- raster("/Volumes/dataSSD/Projects/activeProjects/misc/RoL/sweProportion.tif")
 #win_precip_rain <- raster("/Volumes/dataSSD/Projects/activeProjects/misc/RoL/winterRain.tif")
-win_precip_rain <- raster("/Volumes/localDrobo/Projects/activeProjects/misc/RoL/winterRain.tif")
+win_precip_rain <- raster("/Volumes/Projects/activeProjects/misc/RoL/winterRain.tif")
 
 # deal with NA values in rasters
 NAs <- unique(c(which(is.na(snow_cover[])), which(is.na(win_precip_rain[]))))
@@ -170,6 +171,8 @@ names(newData)[1:2] <- c("snow_cover", "win_precip_rain")
 pred <- pred_brom_lam(new=newData[,1:3])
 predRast <- snow_cover
 predRast[newData$cell] <- pred
+predPlot <- predRast
+predPlot[predPlot[]<=0] <- NA
 predRast[predRast[]<=0] <- 0#NA
 writeRaster(predRast, "/Users/mfitzpatrick/Desktop/bromus_lambdaPred.v2.tif", 
             overwrite=T)
@@ -185,16 +188,17 @@ NAstates.simp <- shapefile("/Volumes/dataSSD/Projects/activeProjects/plantGenome
 NAlakes <- shapefile("/Volumes/dataSSD/Projects/activeProjects/plantGenome/NA_lakes.shp")
 NAlakes <- NAlakes[12:16,]
 
-tiff(filename="bromusMap.tif", width=12, height=9, units="in", res=300, 
+tiff(filename="/Users/mfitzpatrick/code/InvasionModels/Graphics/revision/FIGURE7a_bromusMap.v2.2025.tif", width=12, height=9, units="in", res=300, 
      compression="lzw", type="cairo")
-plot(NAstates.simp, col="gray50", bg=NA, border="grey60", 
+plot(NAstates.simp, col="gray80", bg=NA, border="gray80", 
      xlim=c(-130, -80), ylim=c(30, 50))
-plot(NAlakes, col="white", border="gray50", add=T)
+plot(NAlakes, col="white", border="gray80", add=T)
 #plot(hillShade, col=grey(0:1000/1000), legend=FALSE, add=T)#maxpixels=143520052, add=T)
-plot(predRast, col=rgb.tables(1000), add=T, legend=F)
-plot(predRast, legend.only=T, col=rgb.tables(1000), legend.width=2,
-     legend.args=list(side=3, text='r'),
-     smallplot=c(0.10,0.15, 0.2,0.7))
+plot(predPlot, col=rgb.tables(1000), add=T, legend=F)
+plot(predPlot, legend.only=T, col=rgb.tables(1000), legend.width=2,
+     legend.args=list(side=3, text='r', cex=3),
+     axis.args = list(cex.axis = 1.5), 
+     smallplot=c(0.08,0.13, 0.2,0.7))
 box()
 dev.off()
 
@@ -275,23 +279,9 @@ emp_lam <- c(0.051,0.120,0.137,0.092)
 # emp_lam <- exp(emp_lam)
 ################################################################################
 # download monthly worldclim temp, crop to North America, calc mean temp
-tmin <- getData(name="worldclim",
-                 var='tmin',
-                 res=2.5, 
-                 download=T,
-                 path=getwd())
- #tmin <- crop(tmin, extent(-170, -40, 20, 80))
- tmin <- crop(tmin, extent(-85, -75, 22, 31)) 
- 
-# 
- tmax <- getData(name="worldclim",
-                var='tmax',
-                res=2.5,
-                download=T,
-                path=getwd())
-#tmax <- crop(tmax, extent(-170, -40, 20, 80))
- tmax <- crop(tmax, extent(-85, -75, 22, 31)) 
-tmean <- (tmax/10+tmin/10)/2 # rasters are T*10, so div by 20 to get correct scale
+tmean <- worldclim_global(var = "tavg", res = 2.5, path = getwd())
+#tmin <- crop(tmin, extent(-170, -40, 20, 80))
+tmean <- crop(tmean, extent(-85, -75, 22, 31)) 
 names(tmean) <- paste0("tmean", 1:12)
 #writeRaster(tmean, "/Volumes/Samsung_T5/Projects/misc/RoL/tmean_12monthStack.tif")
 #tmean <- stack("/Volumes/Samsung_T5/Projects/misc/RoL/tmean_12monthStack.tif")
@@ -300,6 +290,7 @@ names(tmean) <- paste0("tmean", 1:12)
 
 ################################################################################
 # run in parallel to speed calcs
+tmean.x <- as(tmean, "Raster") # convert from spatRaster
 lambda_rasts <- mclapply(1:12, function(x, tempRasts){
   rast <- tempRasts[[x]]
   keep <- !is.na(rast[]) # index NAs
@@ -315,7 +306,7 @@ lambda_rasts <- mclapply(1:12, function(x, tempRasts){
   lamb[lamb<=0] <-NA # clip non-increasing values to 0
   #-------------------------------------
   rast[which(keep)] <- unlist(lamb) # assign lamba back to raster
-  return(rast)}, tempRasts=tmean, mc.cores=10)
+  return(rast)}, tempRasts=tmean.x, mc.cores=10)
 lambda_rasts <- do.call(stack, lambda_rasts)
 names(lambda_rasts) <-paste("month", 1:12,sep=" ")
 plot(lambda_rasts)
@@ -333,13 +324,14 @@ plot(lambdaMap, main="mean r")
 NAstates.simp <- shapefile("/Volumes/dataSSD/Projects/activeProjects/plantGenome/NA_wIslands_states_SIMPLE.shp")
 
 # 12 month mean
-tiff(filename="medflyMean_Florida.v2.tif", width=12, height=12, units="in", res=300, 
+tiff(filename="/Users/mfitzpatrick/code/InvasionModels/Graphics/revision/FIGURE3a_medflyMean_Florida.v2.tif", width=12, height=12, units="in", res=300, 
      compression="lzw", type="cairo")
-plot(NAstates.simp, col="gray50", bg=NA, border="grey60", 
+plot(NAstates.simp, col="gray80", bg=NA, border="grey80", 
      xlim=c(-85, -75), ylim=c(24, 31))
 plot(lambdaMap, col=rgb.tables(1000), add=T, legend=F)
 plot(lambdaMap, legend.only=T, col=rgb.tables(1000), legend.width=2,
      legend.args=list(side=3, text='r', cex=3),
+     axis.args = list(cex.axis = 1.5), 
      smallplot=c(0.83,0.88, 0.5,0.9))
 box()
 dev.off()
