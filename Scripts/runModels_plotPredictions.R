@@ -174,7 +174,7 @@ predRast[newData$cell] <- pred
 predPlot <- predRast
 predPlot[predPlot[]<=0] <- NA
 predRast[predRast[]<=0] <- 0#NA
-writeRaster(predRast, "/Users/mfitzpatrick/Desktop/bromus_lambdaPred.v2.tif", 
+writeRaster(predRast, "/Users/mfitzpatrick/Desktop/bromus_little_r_Pred.v2.tif", 
             overwrite=T)
 
 # plot bromus prediction -------------------------------------------------------
@@ -182,10 +182,10 @@ writeRaster(predRast, "/Users/mfitzpatrick/Desktop/bromus_lambdaPred.v2.tif",
 #NAstates <- shapefile("/Volumes/dataSSD/Projects/activeProjects/plantGenome/NA_wIslands_states.shp")
 #NAstates.simp <- gSimplify(NAstates, 0.01)
 #shapefile(NAstates.simp, filename="/Volumes/dataSSD/Projects/activeProjects/plantGenome/NA_wIslands_states_SIMPLE.shp")
-NAstates.simp <- shapefile("/Volumes/dataSSD/Projects/activeProjects/plantGenome/NA_wIslands_states_SIMPLE.shp")
+NAstates.simp <- shapefile("/Volumes/Projects/activeProjects/plantGenome/NA_wIslands_states_SIMPLE.shp")
 
 # lakes
-NAlakes <- shapefile("/Volumes/dataSSD/Projects/activeProjects/plantGenome/NA_lakes.shp")
+NAlakes <- shapefile("/Volumes/Projects/activeProjects/plantGenome/NA_lakes.shp")
 NAlakes <- NAlakes[12:16,]
 
 tiff(filename="/Users/mfitzpatrick/code/InvasionModels/Graphics/revision/FIGURE7a_bromusMap.v2.2025.tif", width=12, height=9, units="in", res=300, 

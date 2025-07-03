@@ -97,6 +97,7 @@ tooCold[tooCold[]==0] <- NA
 tooWarm <- tmean_bs>=24 & neg==1
 tooWarm[tooWarm[]==0] <- NA
 
+NAstates.simp <- shapefile("/Volumes/Projects/activeProjects/plantGenome/NA_wIslands_states_SIMPLE.shp")
 
 tiff(filename="/Users/mfitzpatrick/code/InvasionModels/Graphics/revision/FIGURE5a_houseSparrow.tif", 
      width=12, height=12, units="in", res=300, 
@@ -105,7 +106,7 @@ plot(NAstates.simp, col="gray80", bg=NA, border="grey80",
      xlim=c(-130, -80), ylim=c(10, 70))
 plot(growthPred.r, col=rgb.tables(1000), add=T, legend=F)
 plot(tooCold, col="gray80", legend=F, add=T)
-plot(tooWarm, col="black", legend=F, add=T)
+plot(tooWarm, col="gray80", legend=F, add=T)
 plot(growthPred.r, legend.only=T, col=rgb.tables(1000), legend.width=2,
      legend.args=list(side=3, text='r', cex=3),
      axis.args = list(cex.axis = 1.5), 
