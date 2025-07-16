@@ -8,3 +8,4 @@
 *.bil
 *.hdr
 *_bil.zip
+.DS_Store

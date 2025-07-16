@@ -303,7 +303,7 @@ lambda_rasts <- mclapply(1:12, function(x, tempRasts){
   lamb <- lam2_gen(x=exp_tmp,
                    y=emp_lam,
                    z=rast[keep]) # calc little_r for each temp
-  lamb[lamb<=0] <-NA # clip non-increasing values to 0
+  #lamb[lamb<=0] <-NA # clip non-increasing values to 0
   #-------------------------------------
   rast[which(keep)] <- unlist(lamb) # assign lamba back to raster
   return(rast)}, tempRasts=tmean.x, mc.cores=10)
@@ -314,8 +314,11 @@ plot(lambda_rasts)
 # lambdaMap <- calc(lambda_rasts, fun=function(x){prod(exp(x))^(1/length(x))})
 # lambdaMap <- calc(lambda_rasts, fun=function(x){mean(x)})
 lambdaMap <- calc(lambda_rasts, fun=function(x){ifelse(mean(x)>0,mean(x),NA)})
-plot(lambdaMap, main="mean r")
 
+
+plot(lambdaMap, main="mean r")
+writeRaster(lambdaMap, "/Users/mfitzpatrick/Desktop/medfly_little_r_Pred.tif", 
+            overwrite=T)
 
 # plot medfly predictions ------------------------------------------------------
 # North America, with political borders

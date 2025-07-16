@@ -90,6 +90,9 @@ pos <- pos>0
 growthPred.r <- growthPred.r*pos
 growthPred.r[growthPred.r[]==0] <- NA
 
+writeRaster(growthPred.r, 
+             filename="/Users/mfitzpatrick/Desktop/houseSparrow_growthPred.tif",
+             overwrite=TRUE)
 
 tooCold <- tmean_bs<=8 & neg==1
 tooCold[tooCold[]==0] <- NA
