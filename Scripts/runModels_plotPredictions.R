@@ -10,6 +10,10 @@ library(scales)
 library(colorRamps)
 library(geodata)
 
+######################################################################################
+#PLOTTING OF MAPS NOW DONE USING SCRIPT NAMED: ~/InvasionModels/NewVisualizations-NJG/NewMaps.R
+######################################################################################
+
 
 # BROMUS -----------------------------------------------------------------------
 # create snow water equivalent raster (% days above 0.15 cm)
@@ -172,55 +176,58 @@ pred <- pred_brom_lam(new=newData[,1:3])
 predRast <- snow_cover
 predRast[newData$cell] <- pred
 predPlot <- predRast
-predPlot[predPlot[]<=0] <- NA
 predRast[predRast[]<=0] <- 0#NA
 writeRaster(predRast, "/Users/mfitzpatrick/Desktop/bromus_little_r_Pred.v2.tif", 
             overwrite=T)
 
-# plot bromus prediction -------------------------------------------------------
-# North America, with political borders
-#NAstates <- shapefile("/Volumes/dataSSD/Projects/activeProjects/plantGenome/NA_wIslands_states.shp")
-#NAstates.simp <- gSimplify(NAstates, 0.01)
-#shapefile(NAstates.simp, filename="/Volumes/dataSSD/Projects/activeProjects/plantGenome/NA_wIslands_states_SIMPLE.shp")
-NAstates.simp <- shapefile("/Volumes/Projects/activeProjects/plantGenome/NA_wIslands_states_SIMPLE.shp")
+######################################################################################
+#PLOTTING NOW DONE IN SCRIPT NAMED: ~/InvasionModels/NewVisualizations-NJG/NewMaps.R##
+######################################################################################
 
-# lakes
-NAlakes <- shapefile("/Volumes/Projects/activeProjects/plantGenome/NA_lakes.shp")
-NAlakes <- NAlakes[12:16,]
-
-tiff(filename="/Users/mfitzpatrick/code/InvasionModels/Graphics/revision/FIGURE7a_bromusMap.v2.2025.tif", width=12, height=9, units="in", res=300, 
-     compression="lzw", type="cairo")
-plot(NAstates.simp, col="gray80", bg=NA, border="gray80", 
-     xlim=c(-130, -80), ylim=c(30, 50))
-plot(NAlakes, col="white", border="gray80", add=T)
-#plot(hillShade, col=grey(0:1000/1000), legend=FALSE, add=T)#maxpixels=143520052, add=T)
-plot(predPlot, col=rgb.tables(1000), add=T, legend=F)
-plot(predPlot, legend.only=T, col=rgb.tables(1000), legend.width=2,
-     legend.args=list(side=3, text='r', cex=3),
-     axis.args = list(cex.axis = 1.5), 
-     smallplot=c(0.08,0.13, 0.2,0.7))
-box()
-dev.off()
-
-# cheat grass
-cheatgrass <- gbif(genus="Bromus", 
-                   species="tectorum", 
-                   geo=T,
-                   removeZeros=T,
-                   ext=extent(c(-180, -30, 0, 90)))
-
-cheatgrass <- subset(cheatgrass, country %in% c("United States", "Canada", "Mexico"))
-dput(cheatgrass, "cheatGrass.txt")
-tiff(filename="gbif_bromusMap.tif", width=12, height=9, units="in", res=300, 
-     compression="lzw", type="cairo")
-plot(NAstates.simp, col="gray50", bg=NA, border="grey60", 
-     xlim=c(-130, -80), ylim=c(30, 50))
-plot(NAlakes, col="white", border="gray50", add=T)
-#plot(hillShade, col=grey(0:1000/1000), legend=FALSE, add=T)#maxpixels=143520052, add=T)
-#plot(predRast, col=rgb.tables(1000), add=F, legend=F)
-points(cheatgrass$lon, cheatgrass$lat, pch=20, col=rgb(0,0,1,0.5))
-box()
-dev.off()
+# # plot bromus prediction -------------------------------------------------------
+# # North America, with political borders
+# #NAstates <- shapefile("/Volumes/dataSSD/Projects/activeProjects/plantGenome/NA_wIslands_states.shp")
+# #NAstates.simp <- gSimplify(NAstates, 0.01)
+# #shapefile(NAstates.simp, filename="/Volumes/dataSSD/Projects/activeProjects/plantGenome/NA_wIslands_states_SIMPLE.shp")
+# NAstates.simp <- shapefile("/Volumes/Projects/activeProjects/plantGenome/NA_wIslands_states_SIMPLE.shp")
+# 
+# # lakes
+# NAlakes <- shapefile("/Volumes/Projects/activeProjects/plantGenome/NA_lakes.shp")
+# NAlakes <- NAlakes[12:16,]
+# 
+# tiff(filename="/Users/mfitzpatrick/code/InvasionModels/Graphics/revision/FIGURE7a_bromusMap.v2.2025.tif", width=12, height=9, units="in", res=300, 
+#      compression="lzw", type="cairo")
+# plot(NAstates.simp, col="gray80", bg=NA, border="gray80", 
+#      xlim=c(-130, -80), ylim=c(30, 50))
+# plot(NAlakes, col="white", border="gray80", add=T)
+# #plot(hillShade, col=grey(0:1000/1000), legend=FALSE, add=T)#maxpixels=143520052, add=T)
+# plot(predPlot, col=rgb.tables(1000), add=T, legend=F)
+# plot(predPlot, legend.only=T, col=rgb.tables(1000), legend.width=2,
+#      legend.args=list(side=3, text='r', cex=3),
+#      axis.args = list(cex.axis = 1.5), 
+#      smallplot=c(0.08,0.13, 0.2,0.7))
+# box()
+# dev.off()
+# 
+# # cheat grass
+# cheatgrass <- gbif(genus="Bromus", 
+#                    species="tectorum", 
+#                    geo=T,
+#                    removeZeros=T,
+#                    ext=extent(c(-180, -30, 0, 90)))
+# 
+# cheatgrass <- subset(cheatgrass, country %in% c("United States", "Canada", "Mexico"))
+# dput(cheatgrass, "cheatGrass.txt")
+# tiff(filename="gbif_bromusMap.tif", width=12, height=9, units="in", res=300, 
+#      compression="lzw", type="cairo")
+# plot(NAstates.simp, col="gray50", bg=NA, border="grey60", 
+#      xlim=c(-130, -80), ylim=c(30, 50))
+# plot(NAlakes, col="white", border="gray50", add=T)
+# #plot(hillShade, col=grey(0:1000/1000), legend=FALSE, add=T)#maxpixels=143520052, add=T)
+# #plot(predRast, col=rgb.tables(1000), add=F, legend=F)
+# points(cheatgrass$lon, cheatgrass$lat, pch=20, col=rgb(0,0,1,0.5))
+# box()
+# dev.off()
 
 
 
@@ -281,7 +288,10 @@ emp_lam <- c(0.051,0.120,0.137,0.092)
 # download monthly worldclim temp, crop to North America, calc mean temp
 tmean <- worldclim_global(var = "tavg", res = 2.5, path = getwd())
 #tmin <- crop(tmin, extent(-170, -40, 20, 80))
+# crop to Florida
 tmean <- crop(tmean, extent(-85, -75, 22, 31)) 
+# crop to North America
+#tmean <- crop(tmean, extent(-170, -50, 20, 75))
 names(tmean) <- paste0("tmean", 1:12)
 #writeRaster(tmean, "/Volumes/Samsung_T5/Projects/misc/RoL/tmean_12monthStack.tif")
 #tmean <- stack("/Volumes/Samsung_T5/Projects/misc/RoL/tmean_12monthStack.tif")
@@ -303,7 +313,7 @@ lambda_rasts <- mclapply(1:12, function(x, tempRasts){
   lamb <- lam2_gen(x=exp_tmp,
                    y=emp_lam,
                    z=rast[keep]) # calc little_r for each temp
-  #lamb[lamb<=0] <-NA # clip non-increasing values to 0
+  lamb[lamb<=0] <- NA # clip non-increasing values to 0
   #-------------------------------------
   rast[which(keep)] <- unlist(lamb) # assign lamba back to raster
   return(rast)}, tempRasts=tmean.x, mc.cores=10)
@@ -320,128 +330,133 @@ plot(lambdaMap, main="mean r")
 writeRaster(lambdaMap, "/Users/mfitzpatrick/Desktop/medfly_little_r_Pred.tif", 
             overwrite=T)
 
-# plot medfly predictions ------------------------------------------------------
-# North America, with political borders
-#NAstates <- shapefile("/Volumes/dataSSD/Projects/plantGenome/NA_wIslands_states.shp")
-#NAstates.simp <- gSimplify(NAstates, 0.01)
-NAstates.simp <- shapefile("/Volumes/dataSSD/Projects/activeProjects/plantGenome/NA_wIslands_states_SIMPLE.shp")
+# # plot medfly predictions ------------------------------------------------------
+# # North America, with political borders
+# #NAstates <- shapefile("/Volumes/dataSSD/Projects/plantGenome/NA_wIslands_states.shp")
+# #NAstates.simp <- gSimplify(NAstates, 0.01)
+# NAstates.simp <- shapefile("/Volumes/dataSSD/Projects/activeProjects/plantGenome/NA_wIslands_states_SIMPLE.shp")
+# 
+# # 12 month mean
+# tiff(filename="/Users/mfitzpatrick/code/InvasionModels/Graphics/revision/FIGURE3a_medflyMean_Florida.v2.tif", width=12, height=12, units="in", res=300, 
+#      compression="lzw", type="cairo")
+# plot(NAstates.simp, col="gray80", bg=NA, border="grey80", 
+#      xlim=c(-85, -75), ylim=c(24, 31))
+# plot(lambdaMap, col=rgb.tables(1000), add=T, legend=F)
+# plot(lambdaMap, legend.only=T, col=rgb.tables(1000), legend.width=2,
+#      legend.args=list(side=3, text='r', cex=3),
+#      axis.args = list(cex.axis = 1.5), 
+#      smallplot=c(0.83,0.88, 0.5,0.9))
+# box()
+# dev.off()
+# 
+# # medfly
+# medfly <- gbif(genus="Ceratitis", 
+#                species="capitata", 
+#                geo=T, 
+#                removeZeros=T,
+#                ext=extent(c(-180, -30, 0, 90)))
+# 
+# medfly <- subset(medfly, country %in% c("United States", "Canada", "Mexico"))
+# 
+# # plot
+# tiff(filename="gbif_medflyMean_Florida.tif", width=12, height=12, units="in", res=300, 
+#      compression="lzw", type="cairo")
+# plot(NAstates.simp, col="gray50", bg=NA, border="grey60", 
+#      xlim=c(-85, -75), ylim=c(24, 31))
+# #plot(lambdaMap, col=rgb.tables(1000), add=T, legend=F)
+# #plot(lambdaMap, legend.only=T, col=rgb.tables(1000), legend.width=2,
+# #     legend.args=list(side=3, text='lambda'),
+# #     smallplot=c(0.83,0.88, 0.5,0.9))
+# points(medfly$lon, medfly$lat, pch=20, cex=2, col=rgb(0,0,1,0.5))
+# box()
+# dev.off()
+# 
+# # individual month panels (combined later in Photoshop)
+# for(m in 1:12){
+#   print(array(month.name)[m])
+#   fName <- paste0(array(month.name)[m], "_medfly.tif")
+#   tiff(filename=fName, width=12, height=12, units="in", res=300, 
+#        compression="lzw", type="cairo")
+#   plot(lambda_rasts[[m]], col="white", legend=F,
+#        xlim=c(-170, -50), ylim=c(19, 70), axes=F, box=F,
+#        main=array(month.name)[m], cex.main=4)
+#   plot(NAstates.simp, col="gray50", bg=NA, border="grey60", 
+#        add=T, 
+#        xlim=c(-180, -50), ylim=c(20, 75))
+#   plot(lambda_rasts[[m]], col=rgb.tables(1000), add=T, legend=F)
+#   if(m==1){
+#   plot(lambda_rasts[[m]], legend.only=T, col=rgb.tables(1000), legend.width=2,
+#        legend.args=list(side=3, text='lambda', cex=3, font=2),
+#        smallplot=c(0.2, 0.24, 0.14, 0.49),
+#        axis.args=list(cex.axis=2.5))
+#   }
+#   box()
+#   dev.off()
+# }
 
-# 12 month mean
-tiff(filename="/Users/mfitzpatrick/code/InvasionModels/Graphics/revision/FIGURE3a_medflyMean_Florida.v2.tif", width=12, height=12, units="in", res=300, 
-     compression="lzw", type="cairo")
-plot(NAstates.simp, col="gray80", bg=NA, border="grey80", 
-     xlim=c(-85, -75), ylim=c(24, 31))
-plot(lambdaMap, col=rgb.tables(1000), add=T, legend=F)
-plot(lambdaMap, legend.only=T, col=rgb.tables(1000), legend.width=2,
-     legend.args=list(side=3, text='r', cex=3),
-     axis.args = list(cex.axis = 1.5), 
-     smallplot=c(0.83,0.88, 0.5,0.9))
-box()
-dev.off()
+# # House sparrow ------------------------------------------
+######################################################################################
+#SEE SCRIPT NAMED: ~/InvasionModels/Scripts/HouseSParrowSplineFitter.R
+######################################################################################
 
-# medfly
-medfly <- gbif(genus="Ceratitis", 
-               species="capitata", 
-               geo=T, 
-               removeZeros=T,
-               ext=extent(c(-180, -30, 0, 90)))
 
-medfly <- subset(medfly, country %in% c("United States", "Canada", "Mexico"))
-
-# plot
-tiff(filename="gbif_medflyMean_Florida.tif", width=12, height=12, units="in", res=300, 
-     compression="lzw", type="cairo")
-plot(NAstates.simp, col="gray50", bg=NA, border="grey60", 
-     xlim=c(-85, -75), ylim=c(24, 31))
-#plot(lambdaMap, col=rgb.tables(1000), add=T, legend=F)
-#plot(lambdaMap, legend.only=T, col=rgb.tables(1000), legend.width=2,
-#     legend.args=list(side=3, text='lambda'),
-#     smallplot=c(0.83,0.88, 0.5,0.9))
-points(medfly$lon, medfly$lat, pch=20, cex=2, col=rgb(0,0,1,0.5))
-box()
-dev.off()
-
-# individual month panels (combined later in Photoshop)
-for(m in 1:12){
-  print(array(month.name)[m])
-  fName <- paste0(array(month.name)[m], "_medfly.tif")
-  tiff(filename=fName, width=12, height=12, units="in", res=300, 
-       compression="lzw", type="cairo")
-  plot(lambda_rasts[[m]], col="white", legend=F,
-       xlim=c(-170, -50), ylim=c(19, 70), axes=F, box=F,
-       main=array(month.name)[m], cex.main=4)
-  plot(NAstates.simp, col="gray50", bg=NA, border="grey60", 
-       add=T, 
-       xlim=c(-180, -50), ylim=c(20, 75))
-  plot(lambda_rasts[[m]], col=rgb.tables(1000), add=T, legend=F)
-  if(m==1){
-  plot(lambda_rasts[[m]], legend.only=T, col=rgb.tables(1000), legend.width=2,
-       legend.args=list(side=3, text='lambda', cex=3, font=2),
-       smallplot=c(0.2, 0.24, 0.14, 0.49),
-       axis.args=list(cex.axis=2.5))
-  }
-  box()
-  dev.off()
-}
-
-# House sparrow ------------------------------------------
-library(raster)
-
-exTmpRasts <- list.files(path="/Volumes/Projects/activeProjects/misc/RoL/monthlyMeans/", 
-                         pattern=".tif", full.names = T)
-
-# Updated limits from Jesse (2 July 2021)
-# to better get performance at extremes
-r_function <- splinefun(x=c(8,17,24),
-                        y=c(0,0.6,0),
-                        method="monoH.FC")
-
-# calculate monthly means across climatology period
-tmps <- c("tmmn", "tmmx")
-
-for(m in 1:12){
-  if(m>9){
-    mn <- as.character(m)
-  } else{
-    mn <- as.character(paste0(0, m))
-  }
-  mask <- raster(exTmpRasts[1])
-  mnRasts <- stack(exTmpRasts[grep(paste0("_", mn, ".tif"), exTmpRasts)])
-  # rStack <- stack()
-  # for(rast in 1:2){
-  #   vals <- na.omit(values(mnRasts[[rast]]))
-  #   r <- r_function(vals)
-  #   mask[which(!is.na(mask[]))] <- r
-  #   rStack <- stack(rStack, mask)
-  # }
-    
-    
-  tempR <- lapply(1:2, function(x, rasts=mnRasts, rrr=mask){
-    vals <- na.omit(values(rasts[[x]]))
-    r <- r_function(vals)
-    rrr[which(!is.na(rrr[]))] <- r
-    return(rrr)})
-  
-  for(i in 1:nrow(vals)){
-    print(i)
-    if(sum(vals[i,]<0)>0) {ccc <- 0}
-    if(sum(vals[i,]>0)==2) {ccc <- mean(x)}
-  }
-  
-  tempR <- stack(tempR)
-  vals <- data.frame(na.omit(values(tempR)))
-  rVals <- apply(vals, 1, function(x){
-    if(sum(x<0)>0) {ccc <- 0}
-    if(sum(x>0)==2) {ccc <- mean(x)}
-    return(ccc)
-  })
-  
-  mask[which(!is.na(mask[]))] <- rVals
-  
-  writeRaster(mask, 
-              paste0("/Volumes/Projects/activeProjects/misc/RoL/sparrowMaps/",
-                     "r_", mn, ".tif"),
-              overwrite=TRUE)
-}
-
-rrr <- list.files("/Volumes/Projects/activeProjects/misc/RoL/sparrowMaps/")
+# library(raster)
+# 
+# exTmpRasts <- list.files(path="/Volumes/Projects/activeProjects/misc/RoL/monthlyMeans/", 
+#                          pattern=".tif", full.names = T)
+# 
+# # Updated limits from Jesse (2 July 2021)
+# # to better get performance at extremes
+# r_function <- splinefun(x=c(8,17,24),
+#                         y=c(0,0.6,0),
+#                         method="monoH.FC")
+# 
+# # calculate monthly means across climatology period
+# tmps <- c("tmmn", "tmmx")
+# 
+# for(m in 1:12){
+#   if(m>9){
+#     mn <- as.character(m)
+#   } else{
+#     mn <- as.character(paste0(0, m))
+#   }
+#   mask <- raster(exTmpRasts[1])
+#   mnRasts <- stack(exTmpRasts[grep(paste0("_", mn, ".tif"), exTmpRasts)])
+#   # rStack <- stack()
+#   # for(rast in 1:2){
+#   #   vals <- na.omit(values(mnRasts[[rast]]))
+#   #   r <- r_function(vals)
+#   #   mask[which(!is.na(mask[]))] <- r
+#   #   rStack <- stack(rStack, mask)
+#   # }
+#     
+#     
+#   tempR <- lapply(1:2, function(x, rasts=mnRasts, rrr=mask){
+#     vals <- na.omit(values(rasts[[x]]))
+#     r <- r_function(vals)
+#     rrr[which(!is.na(rrr[]))] <- r
+#     return(rrr)})
+#   
+#   for(i in 1:nrow(vals)){
+#     print(i)
+#     if(sum(vals[i,]<0)>0) {ccc <- 0}
+#     if(sum(vals[i,]>0)==2) {ccc <- mean(x)}
+#   }
+#   
+#   tempR <- stack(tempR)
+#   vals <- data.frame(na.omit(values(tempR)))
+#   rVals <- apply(vals, 1, function(x){
+#     if(sum(x<0)>0) {ccc <- 0}
+#     if(sum(x>0)==2) {ccc <- mean(x)}
+#     return(ccc)
+#   })
+#   
+#   mask[which(!is.na(mask[]))] <- rVals
+#   
+#   writeRaster(mask, 
+#               paste0("/Volumes/Projects/activeProjects/misc/RoL/sparrowMaps/",
+#                      "r_", mn, ".tif"),
+#               overwrite=TRUE)
+# }
+# 
+# rrr <- list.files("/Volumes/Projects/activeProjects/misc/RoL/sparrowMaps/")

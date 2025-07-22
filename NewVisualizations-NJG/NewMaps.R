@@ -125,10 +125,14 @@ ggplot() +
     axis.title = element_blank(), # Optional: Remove axis titles
     axis.text = element_blank(), # Optional: Remove axis text for a cleaner map
     # Optional: Adjust legend position or remove if not needed
-    legend.position.inside = c(0, 0), # Or "none" if you don't want a legend
-    legend.justification = c("left", "top"),
-    legend.title = element_text(size = 24, face = "bold"), 
-    legend.text = element_text(size = 10)   
+    legend.position = "none", # Or "none" if you don't want a legend
+    #legend.justification = c("left", "top"),
+    #legend.title = element_text(size = 24, face = "bold"), 
+    #legend.text = element_text(size = 10)   
+  ) + 
+  # Reverse the color scheme for categorical 'status'
+  scale_fill_manual(
+    values = c("positive" = "#F8766D", "negative" = "#00BFC4")
   )
 
 # --- Exporting High-Resolution (Optional) ---
@@ -203,7 +207,10 @@ try(z <- readRDS("/Users/mfitzpatrick/code/InvasionModels/DataObjects/BromusStac
 try(z <- readRDS("DataObjects/BromusStackVegPlot.rds"))
 z <- na.omit(z)
 z$status <- "positive"
-z$status[z$bromus_lambdaPred.v2<=1.0] <- "negative"
+z$status[z$bromus_lambdaPred.v2 <= 0] <- "negative"
+
+#z$status <- "positive"
+#z$status[z$bromus_lambdaPred.v2<=1.0] <- "negative"
  # z <-z[z$bromus_lambdaPred.v2>0,]
 
 # convert z to an sf object
@@ -231,22 +238,16 @@ ggplot() +
   # 2. Plot the points on top of the polygon
   geom_sf(
     data = z,
-    aes(color = factor(status)), # Map the binary variable to color
-    size = 0.65,                       # Size of the points
-    alpha = 1                     # Transparency of the points
-  ) +
-  
-  # 3. Manually define colors for the binary variable
-  # It's good practice to explicitly choose colors for binary variables
-  scale_color_manual(
-    name = "Status",          # Title for the legend
-    values = c("negative" = "#F8766D", "positive" = "#00BFC4"), # Assign specific colors to 0 and 1
-    labels = c("negative", "positive") # Labels for the legend
+    aes(fill = status), # Map the factor variable to FILL for shape 21
+    shape = 21,                 # Use shape 21 for filled circles with border
+    color = "black",            # Set the border color of the points to black
+    size = 1.5,                # Size of the points
+    alpha = 1                   # Transparency of the points
   ) +
   
   annotate("text",
            x = -122, # X-coordinate (longitude) for the text position
-           y = 50,  # Y-coordinate (latitude) for the text position
+           y = 50.3,  # Y-coordinate (latitude) for the text position
            label = "b", # The actual text you want to display
            size = 16, # Font size of the text
            color = "black", # Color of the text
@@ -260,8 +261,8 @@ ggplot() +
     expand = FALSE # Set to FALSE to remove the small padding around the limits
   ) +
   
-# Customize theme for white background and no grid lines
-theme_minimal() + # Start with a minimal theme
+  # Customize theme for white background and no grid lines
+  theme_minimal() + # Start with a minimal theme
   theme(
     panel.background = element_rect(fill = "white", color = NA), # White background, no border
     plot.background = element_rect(fill = "white", color = NA),   # White plot area background
@@ -271,8 +272,16 @@ theme_minimal() + # Start with a minimal theme
     # Optional: Adjust legend position or remove if not needed
     legend.position.inside = c(0, 0), # Or "none" if you don't want a legend
     legend.justification = c("left", "top"),
-    legend.title = element_text(size = 24, face = "bold"), 
-    legend.text = element_text(size = 12)   
+    legend.title = element_text(size = 24, face = "bold"),
+    legend.text = element_text(size = 12),
+    # Adjust size of legend keys
+    legend.key.size = unit(0.5, "cm") # You can adjust this value (e.g., 0.5, 1, 2 cm)
+  ) +
+  # This section is for making legend points larger
+  guides(fill = guide_legend(override.aes = list(size = 3))) +  # Adjust 'size' as needed for legend points
+  # Reverse the color scheme for categorical 'status'
+  scale_fill_manual(
+    values = c("positive" = "#F8766D", "negative" = "#00BFC4")
   )
 
 ggsave("/Users/mfitzpatrick/code/InvasionModels/Graphics/revision/forManuscript/FIGURE7b_bromus.png", 
@@ -355,9 +364,13 @@ z <- readRDS("/Users/mfitzpatrick/code/InvasionModels/DataObjects/medfly.rds")
 z <- z[, c("lon", "lat")]
 z <- na.omit(z) # remove rows with NA values
 status <- terra::extract(medFlyrast, z)[,2]
+# convert status to binary
+status <- ifelse(is.na(status), "negative", "positive") # convert to binary status
 z <- cbind(z, status) # combine lon, lat, and status columns
-z <- na.omit(z) # remove rows with NA values
-z$status[z$status<=1] <- "negative" 
+#z <- na.omit(z) # remove rows with NA values
+#z$status[is.na(z$status)<=1] <- "negative" 
+#convert z$status to a factor
+z$status <- factor(z$status, levels = c("negative", "positive"))
 # convert z to an sf object
 z <- sf::st_as_sf(z, coords = c("lon", "lat"), crs = 4326) # Assuming WGS84 projection
 
@@ -398,7 +411,6 @@ polys <- rbind(usa, caribbean_islands)
 # simplify the geometry
 polys <- sf::st_simplify(polys, dTolerance = 1000)
 
-
 ggplot() +
   # 1. Plot the polygon first (bottom layer)
   geom_sf(
@@ -411,22 +423,17 @@ ggplot() +
   # 2. Plot the points on top of the polygon
   geom_sf(
     data = z,
-    aes(color = factor(status)), # Map the binary variable to color
-    size = 2,                       # Size of the points
+    aes(fill = status), # Map the binary variable to color
+    shape = 21,                 # Use shape 21 for filled circles with border
+    color="black",
+    size = 3,                       # Size of the points
     alpha = 1                     # Transparency of the points
   ) +
   
-  # 3. Manually define colors for the binary variable
-  # It's good practice to explicitly choose colors for binary variables
-  scale_color_manual(
-    name = "Status",          # Title for the legend
-    values = c("negative" = "#F8766D", "positive" = "#00BFC4"), # Assign specific colors to 0 and 1
-    labels = c("negative", "positive") # Labels for the legend
-  ) +
-  
+  # 3. Add text annotation
   annotate("text",
            x = -84.5, # X-coordinate (longitude) for the text position
-           y = 31,  # Y-coordinate (latitude) for the text position
+           y = 31.2,  # Y-coordinate (latitude) for the text position
            label = "b", # The actual text you want to display
            size = 16, # Font size of the text
            color = "black", # Color of the text
@@ -451,8 +458,16 @@ ggplot() +
     # Optional: Adjust legend position or remove if not needed
     legend.position.inside = c(0, 0), # Or "none" if you don't want a legend
     legend.justification = c("left", "top"),
-    legend.title = element_text(size = 24, face = "bold"), 
-    legend.text = element_text(size = 12)   
+    legend.title = element_text(size = 24, face = "bold"),
+    legend.text = element_text(size = 12),
+    # Adjust size of legend keys
+    legend.key.size = unit(0.5, "cm") # You can adjust this value (e.g., 0.5, 1, 2 cm)
+  ) +
+  # This section is for making legend points larger
+  guides(fill = guide_legend(override.aes = list(size = 3))) +  # Adjust 'size' as needed for legend points
+  # Reverse the color scheme for categorical 'status'
+  scale_fill_manual(
+    values = c("positive" = "#F8766D", "negative" = "#00BFC4")
   )
 
 ggsave("/Users/mfitzpatrick/code/InvasionModels/Graphics/revision/forManuscript/FIGURE3b_medfly.png", 
@@ -485,7 +500,7 @@ ggplot() +
   
   annotate("text",
            x = -84.5, # X-coordinate (longitude) for the text position
-           y = 31,  # Y-coordinate (latitude) for the text position
+           y = 31.2,  # Y-coordinate (latitude) for the text position
            label = "a", # The actual text you want to display
            size = 16, # Font size of the text
            color = "black", # Color of the text
@@ -516,7 +531,7 @@ ggplot() +
   # Add a fill scale for your raster values (adjust as needed for your data type)
   scale_fill_gradientn(colors = my_rgb_colors,
                        name = "r",
-                       breaks = seq(0.02, 0.1, by=0.02)) # Customize legend title
+                       breaks = seq(0.05, 0.15, by=0.01)) # Customize legend title
 
 ggsave("/Users/mfitzpatrick/code/InvasionModels/Graphics/revision/forManuscript/FIGURE3a_medfly.png", 
        width = 10, 
