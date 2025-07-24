@@ -106,6 +106,7 @@ writeRaster(medfly_r_raster, "/Users/mfitzpatrick/Desktop/invasionModels/medfly_
 
 #### load GBIF data for medfly ####
 # data DOI: https://doi.org/10.15468/dl.r4ttzx
+# downloaded from GBIF on 7/23/2025
 medflyGBIF <- read.table("/Users/mfitzpatrick/Desktop/invasionModels/medFly_GBIF_07232025.csv", 
                          header=T, sep="\t", stringsAsFactors=F) %>%
   # select records with coordinatesUncertaintyInMeters <= 5000
